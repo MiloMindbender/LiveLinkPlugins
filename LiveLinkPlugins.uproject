@@ -49,6 +49,10 @@
 		{
 			"Name": "Composure",
 			"Enabled": true
+		},
+		{
+			"Name": "LiveLinkFreeD",
+			"Enabled": true
 		}
 	]
 }
