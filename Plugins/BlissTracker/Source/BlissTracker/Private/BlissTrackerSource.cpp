@@ -47,7 +47,7 @@ FBlissTrackerSource::FBlissTrackerSource(FIPv4Endpoint InEndpoint)
     : Socket(nullptr)
     , Stopping(false)
     , Thread(nullptr)
-    , WaitTime(FTimespan::FromMilliseconds(100))
+    , WaitTime(FTimespan::FromMilliseconds(10))
 {
     // defaults
     DeviceEndpoint = InEndpoint;
@@ -164,7 +164,7 @@ uint32 FBlissTrackerSource::Run()
     {
         if (Socket->Wait(ESocketWaitConditions::WaitForRead, WaitTime))
         {
-            uint32 Size;
+            uint32 Size = 0;
 
             while (Socket->HasPendingData(Size))
             {
@@ -200,11 +200,17 @@ void FBlissTrackerSource::HandleReceivedData(TSharedPtr<TArray<uint8>, ESPMode::
     // Currently the data contains 15 floats
 
     float* fdata;
-
     fdata = (float*)(ReceivedData->GetData());
 
- 
-    FName SubjectName("Bliss1");
+    // Take data from the packet and turn it into unreal transform structure
+
+    FVector tLocation = FVector((*(fdata + 2)) * 100.0, (*(fdata + 0)) * 100.0, (*(fdata + 1)) * 100.0);
+    FRotator tRotator = FRotator(*(fdata + 3), -(*(fdata + 4)), *(fdata + 5));
+    FQuat       tQuat = FQuat(tRotator);
+    FVector    tScale = FVector(1.0, 1.0, 1.0);
+    FTransform tTransform = FTransform(tQuat, tLocation, tScale);
+
+    FName SubjectName("Bliss 1");
 
     // Push static data into livelink
 
@@ -213,38 +219,13 @@ void FBlissTrackerSource::HandleReceivedData(TSharedPtr<TArray<uint8>, ESPMode::
     Client->PushSubjectStaticData_AnyThread({ SourceGuid, SubjectName }, ULiveLinkTransformRole::StaticClass(), MoveTemp(TransformStaticDataStruct));
 
     // Push periodic frame data
-
-    FVector tLocation = FVector(  (*(fdata+2))*100.0, (*(fdata + 0))*100.0, (*(fdata + 1))*100.0);
-    FRotator tRotator = FRotator(*(fdata + 3), - (*(fdata + 4)), *(fdata + 5));
-    FQuat       tQuat = FQuat(tRotator);
-    FVector    tScale = FVector(1.0, 1.0, 1.0);
-
  
-    FTransform tTransform = FTransform(tQuat, tLocation, tScale);
-
     FLiveLinkFrameDataStruct TransformFrameDataStruct = FLiveLinkFrameDataStruct(FLiveLinkTransformFrameData::StaticStruct());
     FLiveLinkTransformFrameData& TransformFrameData = *TransformFrameDataStruct.Cast<FLiveLinkTransformFrameData>();
     TransformFrameData.Transform = tTransform;
  //   TransformFrameData.WorldTime = *(fdata + 13);
     Client->PushSubjectFrameData_AnyThread({ SourceGuid, SubjectName }, MoveTemp(TransformFrameDataStruct));
 
-
-
-    //Not sure what this JSON stuff was for?
-#if 0
-    FString JsonString;
-    JsonString.Empty(ReceivedData->Num());
-    for (uint8& Byte : *ReceivedData.Get())
-    {
-        JsonString += TCHAR(Byte);
-    }
-
-    //type values from the JSON
-    FString validtypes = FString("CharacterSubject CharacterAnimation CameraSubject CameraAnimation LightSubject LightAnimation TransformSubject TransformAnimation");
-
-    TSharedPtr<FJsonObject> JsonObject;
-    TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
-#endif
 
 }
 

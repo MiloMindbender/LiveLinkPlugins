@@ -20,7 +20,7 @@ FText UBlissTrackerSourceFactory::GetSourceDisplayName() const
 
 FText UBlissTrackerSourceFactory::GetSourceTooltip() const
 {
-    return LOCTEXT("SourceTooltip", "Creates a connection to a UDP Stream");
+    return LOCTEXT("SourceTooltip", "Creates a connection to a Bliss UDP Stream");
 }
 
 TSharedPtr<SWidget> UBlissTrackerSourceFactory::BuildCreationPanel(FOnLiveLinkSourceCreated InOnLiveLinkSourceCreated) const

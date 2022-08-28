@@ -22,8 +22,8 @@ void SBlissTrackerSourceFactory::Construct(const FArguments& Args)
     OkClicked = Args._OnOkClicked;
 
     FIPv4Endpoint Endpoint;
-    Endpoint.Address = FIPv4Address::Any;
-    Endpoint.Port = 54321;
+    Endpoint.Address = FIPv4Address(127, 0, 0, 1);
+    Endpoint.Port = 7000;
 
     ChildSlot
         [
@@ -74,8 +74,8 @@ void SBlissTrackerSourceFactory::OnEndpointChanged(const FText& NewValue, ETextC
         FIPv4Endpoint Endpoint;
         if (!FIPv4Endpoint::Parse(NewValue.ToString(), Endpoint))
         {
-            Endpoint.Address = FIPv4Address::Any;
-            Endpoint.Port = 54321;
+            Endpoint.Address = FIPv4Address(127,0,0,1);
+            Endpoint.Port = 7000;
             EditabledTextPin->SetText(FText::FromString(Endpoint.ToString()));
         }
     }
