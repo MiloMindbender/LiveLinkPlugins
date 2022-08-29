@@ -154,7 +154,67 @@ void FBlissTrackerSource::Stop()
 {
     Stopping = true;
 }
+#if 1  // new-old code
+//----------------------------------------------------------------------------------------------------------------------------
+uint32 FBlissTrackerSource::Run()
+{
 
+    TSharedRef<FInternetAddr> Sender = SocketSubsystem->CreateInternetAddr();
+
+    while (!Stopping)
+    {
+        if (Socket->Wait(ESocketWaitConditions::WaitForRead, WaitTime))
+        {
+            uint32 Size = 0;
+
+            while (Socket->HasPendingData(Size))
+            {
+                int32 Read = 0;
+
+                if (Socket->RecvFrom(RecvBuffer.GetData(), RecvBuffer.Num(), Read, *Sender))
+                {
+                    if (Read > 0)
+                    {
+                        // Currently the data contains 15 floats
+
+                        float* fdata;
+                        fdata = (float*)(RecvBuffer.GetData());
+
+                        // Take data from the packet and turn it into unreal transform structure
+
+                        FVector tLocation = FVector((*(fdata + 2)) * 100.0, (*(fdata + 0)) * 100.0, (*(fdata + 1)) * 100.0);
+                        FRotator tRotator = FRotator(*(fdata + 3), -(*(fdata + 4)), *(fdata + 5));
+                        FQuat       tQuat = FQuat(tRotator);
+                        FVector    tScale = FVector(1.0, 1.0, 1.0);
+                        FTransform tTransform = FTransform(tQuat, tLocation, tScale);
+
+                        FName SubjectName("Bliss 1");
+
+//                        if(!EncounteredSubjects.Contains(SubjectName))
+                        { 
+                            // Push static data into livelink
+
+                            FLiveLinkStaticDataStruct StaticData(FLiveLinkCameraStaticData::StaticStruct());
+                            FLiveLinkCameraStaticData& transformData = *StaticData.Cast<FLiveLinkCameraStaticData>();
+                            Client->PushSubjectStaticData_AnyThread({ SourceGuid, SubjectName }, ULiveLinkCameraRole::StaticClass(), MoveTemp(StaticData));
+
+                            EncounteredSubjects.Add(SubjectName);
+                        }
+                        // Push periodic frame data
+                        FLiveLinkFrameDataStruct FrameData(FLiveLinkCameraFrameData::StaticStruct());
+                        FLiveLinkCameraFrameData* CameraFrameData = FrameData.Cast<FLiveLinkCameraFrameData>();
+                        CameraFrameData->Transform = tTransform;
+                        Client->PushSubjectFrameData_AnyThread({ SourceGuid, SubjectName }, MoveTemp(FrameData));
+
+                    }
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+#else // old code
 //----------------------------------------------------------------------------------------------------------------------------
 uint32 FBlissTrackerSource::Run()
 {
@@ -228,5 +288,6 @@ void FBlissTrackerSource::HandleReceivedData(TSharedPtr<TArray<uint8>, ESPMode::
 
 
 }
+#endif // old code
 
 #undef LOCTEXT_NAMESPACE
