@@ -53,6 +53,10 @@
 		{
 			"Name": "LiveLinkFreeD",
 			"Enabled": true
+		},
+		{
+			"Name": "LiveLinkBliss",
+			"Enabled": true
 		}
 	]
 }
