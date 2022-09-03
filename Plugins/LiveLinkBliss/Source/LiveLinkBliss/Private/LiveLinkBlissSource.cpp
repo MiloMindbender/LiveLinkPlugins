@@ -339,10 +339,11 @@ uint32 FLiveLinkBlissSource::Run()
 							// There is no byte order conversion being done right now.
 
 							// Decode xyz, roll pitch yaw and generate a transform from it
+							// Bliss sends meters, so we multiply by 100 to get CM for unreal, also do some axis swapping
 							FVector tLocation = FVector(
-								*(float*)&ReceiveBuffer[BlissPacketDefinition::Z],
-								*(float*)&ReceiveBuffer[BlissPacketDefinition::X],
-								*(float*)&ReceiveBuffer[BlissPacketDefinition::Y]);
+								(*(float*)&ReceiveBuffer[BlissPacketDefinition::Z]) * 100.0,
+								(*(float*)&ReceiveBuffer[BlissPacketDefinition::X]) * 100.0,
+								(*(float*)&ReceiveBuffer[BlissPacketDefinition::Y]) * 100.0 );
 
 							FRotator tRotator = FRotator(
 								*(float*)&ReceiveBuffer[BlissPacketDefinition::Roll],
