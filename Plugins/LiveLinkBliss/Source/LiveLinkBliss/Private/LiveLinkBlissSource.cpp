@@ -15,20 +15,24 @@
 #define LOCTEXT_NAMESPACE "LiveLinkBlissSourceFactory"
 
 // These consts must be defined here in the CPP for non-MS compiler issues
-const uint8 BlissPacketDefinition::PacketTypeD1 = 0xD1;
-const uint8 BlissPacketDefinition::PacketSizeD1 = 0x1D;
-const uint8 BlissPacketDefinition::PacketType = 0x00;
-const uint8 BlissPacketDefinition::CameraID = 0x01;
-const uint8 BlissPacketDefinition::Yaw = 0x02;
-const uint8 BlissPacketDefinition::Pitch = 0x05;
-const uint8 BlissPacketDefinition::Roll = 0x08;
-const uint8 BlissPacketDefinition::X = 0x0B;
-const uint8 BlissPacketDefinition::Y = 0x0E;
-const uint8 BlissPacketDefinition::Z = 0x11;
-const uint8 BlissPacketDefinition::FocalLength = 0x14;
-const uint8 BlissPacketDefinition::FocusDistance = 0x17;
-const uint8 BlissPacketDefinition::UserDefined = 0x1A;
-const uint8 BlissPacketDefinition::Checksum = 0x1C;
+
+const uint8 BlissPacketDefinition::PacketSize = 60;
+
+const uint8 BlissPacketDefinition::X =					0;
+const uint8 BlissPacketDefinition::Y =					4;
+const uint8 BlissPacketDefinition::Z =					8;
+const uint8 BlissPacketDefinition::Roll =				12;
+const uint8 BlissPacketDefinition::Pitch =				16;
+const uint8 BlissPacketDefinition::Yaw =				20;
+const uint8 BlissPacketDefinition::Unfiltered_X =		24;
+const uint8 BlissPacketDefinition::Unfiltered_Y =		28;
+const uint8 BlissPacketDefinition::Unfiltered_Z =		32;
+const uint8 BlissPacketDefinition::Unfiltered_Roll =	36;
+const uint8 BlissPacketDefinition::Unfiltered_Pitch =	40;
+const uint8 BlissPacketDefinition::Unfiltered_Yaw =		44;
+const uint8 BlissPacketDefinition::Confidence =			48;
+const uint8 BlissPacketDefinition::Host_Time =			52;
+const uint8 BlissPacketDefinition::Sensor_Time =		56;
 
 //-------------------------------------------------------------------------------------------------------------------------------
 // FLiveLinkBlissSource constructor
@@ -300,37 +304,55 @@ uint32 FLiveLinkBlissSource::Run()
 	// Free-D max data rate is 100Hz
 	const FTimespan SocketTimeout(FTimespan::FromMilliseconds(10));
 
+	// Only process packets if we are not stopping (shutting down)
 	while (!Stopping)
 	{
+		// If the socket is valid, wait for data to happen
 		if (Socket && Socket->Wait(ESocketWaitConditions::WaitForRead, SocketTimeout))
 		{
+			// While there is data to process, repeat this
 			uint32 PendingDataSize = 0;
 			while (Socket && Socket->HasPendingData(PendingDataSize))
 			{
+				// Do a single read, should return one UDP packet
 				int32 ReceivedDataSize = 0;
 				if (Socket && Socket->Recv(ReceiveBuffer.GetData(), ReceiveBufferSize, ReceivedDataSize))
 				{
+					// If we got some data, process it.
 					if (ReceivedDataSize > 0)
 					{
+						// !!!GAC not sure what the source settings do yet!
 						if (SavedSourceSettings == nullptr)
 						{
 							UE_LOG(LogLiveLinkBliss, Error, TEXT("LiveLinkBlissSource: Received a packet, but we don't have a valid SavedSourceSettings!"));
 						}
-						else if (ReceiveBuffer[BlissPacketDefinition::PacketType] == BlissPacketDefinition::PacketTypeD1)
+						else // if (ReceiveBuffer[BlissPacketDefinition::PacketType] == BlissPacketDefinition::PacketTypeD1)
 						{
-							// The only message that we care about is the 0xD1 message which contains PnO data, zoom, focus, and a user defined field (usually iris)
-							uint8 CameraId = ReceiveBuffer[BlissPacketDefinition::CameraID];
-							FRotator Orientation;
-							Orientation.Yaw = Decode_Signed_8_15(&ReceiveBuffer[BlissPacketDefinition::Yaw]);
-							Orientation.Pitch = Decode_Signed_8_15(&ReceiveBuffer[BlissPacketDefinition::Pitch]);
-							Orientation.Roll = Decode_Signed_8_15(&ReceiveBuffer[BlissPacketDefinition::Roll]);
+							// Warn if we didn't get the right size packet
 
-							// Bliss has the X and Y axes flipped from Unreal
-							FVector Position;
-							Position.X = Decode_Signed_17_6(&ReceiveBuffer[BlissPacketDefinition::Y]);
-							Position.Y = Decode_Signed_17_6(&ReceiveBuffer[BlissPacketDefinition::X]);
-							Position.Z = Decode_Signed_17_6(&ReceiveBuffer[BlissPacketDefinition::Z]);
+							if (ReceivedDataSize != BlissPacketDefinition::PacketSize)
+							{
+								UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Received packet length mismatch - received 0x%02x, calculated 0x%02x"), ReceivedDataSize, BlissPacketDefinition::PacketSize);
+							}
 
+							// There is currently only one type of message to receive, this parses it out.
+							// There is no byte order conversion being done right now.
+
+							// Decode xyz, roll pitch yaw and generate a transform from it
+							FVector tLocation = FVector(
+								*(float*)&ReceiveBuffer[BlissPacketDefinition::Z],
+								*(float*)&ReceiveBuffer[BlissPacketDefinition::X],
+								*(float*)&ReceiveBuffer[BlissPacketDefinition::Y]);
+
+							FRotator tRotator = FRotator(
+								*(float*)&ReceiveBuffer[BlissPacketDefinition::Roll],
+								-(*(float*)&ReceiveBuffer[BlissPacketDefinition::Pitch]),
+								*(float*)&ReceiveBuffer[BlissPacketDefinition::Yaw]);
+							FQuat tQuat = FQuat(tRotator);
+							FVector    tScale = FVector(1.0, 1.0, 1.0);
+							FTransform tTransform = FTransform(tQuat, tLocation, tScale);
+
+#if 0  // add this back when we have some encoder data.
 							int32 FocalLengthInt = Decode_Unsigned_24(&ReceiveBuffer[BlissPacketDefinition::FocalLength]);
 							int32 FocusDistanceInt = Decode_Unsigned_24(&ReceiveBuffer[BlissPacketDefinition::FocusDistance]);
 							int32 UserDefinedDataInt = Decode_Unsigned_16(&ReceiveBuffer[BlissPacketDefinition::UserDefined]);
@@ -338,21 +360,20 @@ uint32 FLiveLinkBlissSource::Run()
 							float FocalLength = ProcessEncoderData(SavedSourceSettings->FocalLengthEncoderData, FocalLengthInt);
 							float FocusDistance = ProcessEncoderData(SavedSourceSettings->FocusDistanceEncoderData, FocusDistanceInt);
 							float UserDefinedData = ProcessEncoderData(SavedSourceSettings->UserDefinedEncoderData, UserDefinedDataInt);
+#endif
+							
+							// Define variables for some data we don't have yet
 
-							uint8 Checksum = CalculateChecksum(&ReceiveBuffer[BlissPacketDefinition::PacketType], ReceivedDataSize - 1);
-							if (Checksum != ReceiveBuffer[BlissPacketDefinition::Checksum])
-							{
-								UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Received packet checksum error - received 0x%02x, calculated 0x%02x"), ReceiveBuffer[BlissPacketDefinition::Checksum], Checksum);
-							}
+							int CameraId = 0;
+							float FocalLength = 0;
+							float FocusDistance = 0;
+							float UserDefinedData = 0;
 
-							if (ReceivedDataSize != BlissPacketDefinition::PacketSizeD1)
-							{
-								UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Received packet length mismatch - received 0x%02x, calculated 0x%02x"), ReceivedDataSize, BlissPacketDefinition::PacketSizeD1);
-							}
+							// Make data structure to push into livelink
 
 							FLiveLinkFrameDataStruct FrameData(FLiveLinkCameraFrameData::StaticStruct());
 							FLiveLinkCameraFrameData* CameraFrameData = FrameData.Cast<FLiveLinkCameraFrameData>();
-							CameraFrameData->Transform = FTransform(Orientation, Position);
+							CameraFrameData->Transform = tTransform;
 
 							if (SavedSourceSettings->bSendExtraMetaData)
 							{
@@ -373,15 +394,17 @@ uint32 FLiveLinkBlissSource::Run()
 								CameraFrameData->Aperture = UserDefinedData;
 							}
 
+						
 							CameraSubjectName = FString::Printf(TEXT("Camera %d"), CameraId);
 							Send(&FrameData, FName(CameraSubjectName));
 
 							FrameCounter++;
 						}
-						else
-						{
-							UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Unsupported Bliss message type 0x%02x"), ReceiveBuffer[BlissPacketDefinition::PacketType]);
-						}
+						// If there were multiple packet types we would have an alarm about it here.
+//						else
+//						{
+//							UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Unsupported Bliss message type 0x%02x"), ReceiveBuffer[BlissPacketDefinition::PacketType]);
+//						}
 					}
 				}
 			}

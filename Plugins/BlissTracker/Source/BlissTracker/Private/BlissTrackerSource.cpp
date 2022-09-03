@@ -52,7 +52,7 @@ FBlissTrackerSource::FBlissTrackerSource(FIPv4Endpoint InEndpoint)
     // defaults
     DeviceEndpoint = InEndpoint;
     
-    UE_LOG(LogLiveLinkBliss, Log, TEXT("BlissTrackerSource: This is the OLD BlissTracker"));
+    UE_LOG(ModuleLog, Log, TEXT("BlissTrackerSource: This is the OLD BlissTracker"));
     SourceStatus = LOCTEXT("SourceStatus_DeviceNotFound", "Device Not Found");
     // This name will show up in the LiveLink add source menu
     SourceType = LOCTEXT("BlissTrackerSourceType", "Bliss Tracker");
