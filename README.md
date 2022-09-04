@@ -46,7 +46,7 @@ Currently this only works with ONE bliss sensor, multiple sensors will be added 
 
 Since this is a test plugin, these instructions assume you are familiar with Unreal.  Eventually there will be a video tutorial
 
-AT THE MOMENT, you may need a copy of Visual Studio (community edition is fine, and it's free) installed to build this.  When I get further along I will try to provide built versions so you won't need this.
+AT THE MOMENT, you may need a copy of Visual Studio (community edition is fine, and it's free) installed to build this.  When I get further along I will try to provide built versions so you won't need this.  You need to install the Visual Studio options for C++ and game development.
 
 This is built for Unreal Engine 5.0.3  It may work with older versions but I haven't tested it so you're on your own there.
 
