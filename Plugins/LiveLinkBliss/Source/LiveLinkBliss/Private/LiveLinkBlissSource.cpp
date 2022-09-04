@@ -301,6 +301,11 @@ void FLiveLinkBlissSource::Stop()
 //
 uint32 FLiveLinkBlissSource::Run()
 {
+	static double lastSensorTime = 0.0;
+	static double lastHostTime = 0.0;
+	static double lastUnrealTime = 0.0;
+	static bool   lastFocalDistance = false;
+
 	// Free-D max data rate is 100Hz
 	const FTimespan SocketTimeout(FTimespan::FromMilliseconds(10));
 
@@ -343,7 +348,7 @@ uint32 FLiveLinkBlissSource::Run()
 							FVector tLocation = FVector(
 								(*(float*)&ReceiveBuffer[BlissPacketDefinition::Z]) * 100.0,
 								(*(float*)&ReceiveBuffer[BlissPacketDefinition::X]) * 100.0,
-								(*(float*)&ReceiveBuffer[BlissPacketDefinition::Y]) * 100.0 );
+								(*(float*)&ReceiveBuffer[BlissPacketDefinition::Y]) * 100.0);
 
 							FRotator tRotator = FRotator(
 								*(float*)&ReceiveBuffer[BlissPacketDefinition::Roll],
@@ -352,6 +357,23 @@ uint32 FLiveLinkBlissSource::Run()
 							FQuat tQuat = FQuat(tRotator);
 							FVector    tScale = FVector(1.0, 1.0, 1.0);
 							FTransform tTransform = FTransform(tQuat, tLocation, tScale);
+
+							// Convert the sensor timeto seconds as a double
+
+							double hostTime = (*(float*)&ReceiveBuffer[BlissPacketDefinition::Host_Time]);
+							double sensorTime = (*(float*)&ReceiveBuffer[BlissPacketDefinition::Sensor_Time]);
+							double unrealTime = FPlatformTime::Seconds();
+
+							sensorTime = sensorTime / 1000000.0;
+							double sensorDelta = sensorTime - lastSensorTime;
+							double hostDelta = hostTime - lastHostTime;
+							double unrealDelta = unrealTime - lastUnrealTime;
+							double arrivalJitter = sensorDelta - unrealDelta;
+
+							//							UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Sensor Time %f sensordelta %f hostdelta %f unrealdelta %f delivery jitter %f"), sensorTime, sensorDelta, hostDelta, unrealDelta, arrivalJitter);
+							lastSensorTime = sensorTime;
+							lastHostTime = hostTime;
+							lastUnrealTime = unrealTime;
 
 #if 0  // add this back when we have some encoder data.
 							int32 FocalLengthInt = Decode_Unsigned_24(&ReceiveBuffer[BlissPacketDefinition::FocalLength]);
@@ -362,7 +384,7 @@ uint32 FLiveLinkBlissSource::Run()
 							float FocusDistance = ProcessEncoderData(SavedSourceSettings->FocusDistanceEncoderData, FocusDistanceInt);
 							float UserDefinedData = ProcessEncoderData(SavedSourceSettings->UserDefinedEncoderData, UserDefinedDataInt);
 #endif
-							
+
 							// Define variables for some data we don't have yet
 
 							int CameraId = 0;
@@ -375,7 +397,29 @@ uint32 FLiveLinkBlissSource::Run()
 							FLiveLinkFrameDataStruct FrameData(FLiveLinkCameraFrameData::StaticStruct());
 							FLiveLinkCameraFrameData* CameraFrameData = FrameData.Cast<FLiveLinkCameraFrameData>();
 							CameraFrameData->Transform = tTransform;
-
+#if 1
+							if (SavedSourceSettings->UserDefinedEncoderData.bIsValid)
+							{
+							UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Sensor Time %f sensordelta %f hostdelta %f unrealdelta %f delivery jitter %f"), sensorTime, sensorDelta, hostDelta, unrealDelta, arrivalJitter);
+							}
+							if (SavedSourceSettings->FocusDistanceEncoderData.bIsValid)
+							{
+								CameraFrameData->WorldTime = sensorTime;
+								if (SavedSourceSettings->FocusDistanceEncoderData.bIsValid != lastFocalDistance)
+								{
+									UE_LOG(LogLiveLinkBliss, Warning, TEXT("Using NEW Sensor timing method"));
+									lastFocalDistance = SavedSourceSettings->FocusDistanceEncoderData.bIsValid;
+								}
+							}
+							else
+							{
+								if (SavedSourceSettings->FocusDistanceEncoderData.bIsValid != lastFocalDistance)
+								{
+									UE_LOG(LogLiveLinkBliss, Warning, TEXT("Using OLD timing method"));
+									lastFocalDistance = SavedSourceSettings->FocusDistanceEncoderData.bIsValid;
+								}
+							}
+#else
 							if (SavedSourceSettings->bSendExtraMetaData)
 							{
 								CameraFrameData->MetaData.StringMetaData.Add(FName(TEXT("CameraId")), FString::Printf(TEXT("%d"), CameraId));
@@ -394,7 +438,7 @@ uint32 FLiveLinkBlissSource::Run()
 							{
 								CameraFrameData->Aperture = UserDefinedData;
 							}
-
+#endif
 						
 							CameraSubjectName = FString::Printf(TEXT("Camera %d"), CameraId);
 							Send(&FrameData, FName(CameraSubjectName));
