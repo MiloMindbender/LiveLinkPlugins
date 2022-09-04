@@ -4,7 +4,7 @@ This contains 4 different plugins, all of them are EXPERIMENTAL and may have bug
 
 If you are an expert please, BE SURE to at least read the "How To Test" section below.
 
-Requires Retracker-Bliss-0.8.3-telemetry-slam-sync.exe Bliss app which is available from Marwan Rassi if you have a bliss sensor.  It does NOT work with the regular bliss app.
+Requires Retracker-Bliss-0.9.3-LiveLink.exe Bliss app which is available from Marwan Rassi if you have a bliss sensor.  It does NOT work with the regular bliss app.
 
 # The test app contains 3 LiveLink Plugins, use the right one!
 
@@ -22,7 +22,7 @@ First attempt at LiveLink, didn't work right here only for my reference purposes
 
 This code will be removed when LiveLinkBliss is confirmed stable.
 
-## LiveLinkFreeDE  SAME AS UE5 FreeD
+## LiveLinkFreeD  SAME AS UE5 FreeD
 
 This is the Epic LiveLinkFreeD plugin from the unreal repo, here only for reference purposes, it is unchanged.  The test project builds with it instead of the one shipped with unreal.
 
@@ -50,7 +50,7 @@ AT THE MOMENT, you may need a copy of Visual Studio (community edition is fine, 
 
 This is built for Unreal Engine 5.0.3  It may work with older versions but I haven't tested it so you're on your own there.
 
-To use this you need a copy of "Retracker-Bliss-0.8.3-telemetry-slam-sync.exe", check the RETracker discord for where to get this.
+To use this you need a copy of "Retracker-Bliss-0.9.3-LiveLink.exe", available from https://www.dropbox.com/s/dhzpba6a1vuli4i/Retracker-Bliss-0.9.3-livelink.exe?dl=0
 
 You can use whatever RETracker settings file has worked for you in the past.  Make sure the render_osc_ip is set to the same address as renderer_freed_ip.  renderer_osc_port can be set to anything, the default setup is 7000.
 
