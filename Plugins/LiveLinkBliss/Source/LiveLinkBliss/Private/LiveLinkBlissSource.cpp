@@ -1,4 +1,7 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Portions Copyright Epic Games, Inc. All Rights Reserved.
+// Portions Copyright Greg Corson, All Rights Reserved
+// This LiveLink code is based on the original Epic FreeD plugin, this was necessary because Epic does not supply documentation on how to use LiveLink
+// I have added comments to make the code easier to understand.
 
 #include "LiveLinkBlissSource.h"
 #include "LiveLinkBliss.h"
@@ -141,19 +144,10 @@ bool FLiveLinkBlissSource::RequestSourceShutdown()
 	return true;
 }
 
-//
-// Specific manufacturer default data (we still use auto-ranging as the default)
-//
-// Name			UDP port	Zoom (wide)	(tele)		Focus (near)	(far)		Spare
-// Generic		40000		0x0			0x10000		0x0				0x10000		Unused
-// Panasonic	1111		0x555		0xfff		0x555			0xfff		Iris 0x555 (close) - 0xfff (open)
-// Sony			52380		0x0			0x7ac0		0x1000			0xf000		Lower 12 bits - Iris (F value * 100); Upper 4 bits - Frame number
-// Mosys		8001		0x0			0xffff		0x0				0xffff		Lower 8 bits - Tracking quality 0-3 (undef, good, caution, bad)
-// Stype		6301		0x0			0xffffff	0x0				0xffffff	Unused
-// Ncam			6301		0x0			0xffffff	0x0				0xffffff	Unused
-//
-
 //-------------------------------------------------------------------------------------------------------------------------------
+// OnSettingsChanged --- Handles updating the default settings if someone changes the source type in the LiveLink window.
+// Right now the only source is "Bliss" though in the future we may add more.
+//
 void FLiveLinkBlissSource::OnSettingsChanged(ULiveLinkSourceSettings* Settings, const FPropertyChangedEvent& PropertyChangedEvent)
 {
 	ILiveLinkSource::OnSettingsChanged(Settings, PropertyChangedEvent);
@@ -182,38 +176,25 @@ void FLiveLinkBlissSource::OnSettingsChanged(ULiveLinkSourceSettings* Settings, 
 			bool bFocalLengthEncoderDataChanged = false;
 			bool bUserDefinedEncoderDataChanged = false;
 
+			// Setup the default values for the type of sensor
+			// Arguments for FBlissEncoderData are isValid, invert encoder, use manual range, min encoder value, max encoder value, mask bits for encoder value
+			// Currently Bliss does not have encoder values so all these are turned off by default.
+
 			if (PropertyName == NAME_DefaultConfig)
 			{
 				switch (SourceSettings->DefaultConfig)
 				{
-					case EBlissDefaultConfigs::Generic:		SourceSettings->FocusDistanceEncoderData = FBlissEncoderData({ true, false, false, 0, 0xffff, 0x0000ffff });
-															SourceSettings->FocalLengthEncoderData = FBlissEncoderData({ true, false, false, 0, 0xffff, 0x0000ffff });
+					case EBlissDefaultConfigs::Bliss:		SourceSettings->FocusDistanceEncoderData = FBlissEncoderData({ false, false, false, 0, 0xffff, 0x0000ffff });
+															SourceSettings->FocalLengthEncoderData = FBlissEncoderData({ false, false, false, 0, 0xffff, 0x0000ffff });
 															SourceSettings->UserDefinedEncoderData = FBlissEncoderData({ false });
+															UE_LOG(LogLiveLinkBliss, Warning, TEXT("Bliss is using new timestamps"));
+															SavedSourceSettings->bUseTimestamps = true;
 															break;
-
-					case EBlissDefaultConfigs::Panasonic:	SourceSettings->FocusDistanceEncoderData = FBlissEncoderData({ true, false, false, 0x0555, 0x0fff, 0x0000ffff });
-															SourceSettings->FocalLengthEncoderData = FBlissEncoderData({ true, false, false, 0x0555, 0x0fff, 0x0000ffff });
-															SourceSettings->UserDefinedEncoderData = FBlissEncoderData({ true, true, false, 0x0555, 0x0fff, 0x0000ffff });
-															break;
-
-					case EBlissDefaultConfigs::Sony:		SourceSettings->FocusDistanceEncoderData = FBlissEncoderData({ true, false, false, 0x1000, 0xf000, 0x0000ffff });
-															SourceSettings->FocalLengthEncoderData = FBlissEncoderData({ true, false, false, 0, 0x7ac0, 0x0000ffff });
-															SourceSettings->UserDefinedEncoderData = FBlissEncoderData({ true, false, false, 0, 0x0fff, 0x00000fff });
-															break;
-
-					case EBlissDefaultConfigs::Mosys:		SourceSettings->FocusDistanceEncoderData = FBlissEncoderData({ true, false, false, 0, 0xffff, 0x0000ffff });
-															SourceSettings->FocalLengthEncoderData = FBlissEncoderData({ true, false, false, 0, 0xffff, 0x0000ffff });
+					case EBlissDefaultConfigs::BlissNoTimeStamps:		SourceSettings->FocusDistanceEncoderData = FBlissEncoderData({ false, false, false, 0, 0xffff, 0x0000ffff });
+															SourceSettings->FocalLengthEncoderData = FBlissEncoderData({ false, false, false, 0, 0xffff, 0x0000ffff });
 															SourceSettings->UserDefinedEncoderData = FBlissEncoderData({ false });
-															break;
-
-					case EBlissDefaultConfigs::Stype:		SourceSettings->FocusDistanceEncoderData = FBlissEncoderData({ true, false, false, 0, 0xffffff, 0x00ffffff });
-															SourceSettings->FocalLengthEncoderData = FBlissEncoderData({ true, false, false, 0, 0xffffff, 0x00ffffff });
-															SourceSettings->UserDefinedEncoderData = FBlissEncoderData({ false });
-															break;
-
-					case EBlissDefaultConfigs::Ncam:		SourceSettings->FocusDistanceEncoderData = FBlissEncoderData({ true, false, false, 0, 0xffffff, 0x00ffffff });
-															SourceSettings->FocalLengthEncoderData = FBlissEncoderData({ true, false, false, 0, 0xffffff, 0x00ffffff });
-															SourceSettings->UserDefinedEncoderData = FBlissEncoderData({ false });
+															UE_LOG(LogLiveLinkBliss, Warning, TEXT("Bliss with NO timestamps (old method, like FreeD)"));
+															SavedSourceSettings->bUseTimestamps = false;
 															break;
 				}
 
@@ -304,6 +285,7 @@ uint32 FLiveLinkBlissSource::Run()
 	static double lastSensorTime = 0.0;
 	static double lastHostTime = 0.0;
 	static double lastUnrealTime = 0.0;
+	static double lastRawSensorTime = 0.0;
 	static bool   lastFocalDistance = false;
 
 	// Free-D max data rate is 100Hz
@@ -361,19 +343,22 @@ uint32 FLiveLinkBlissSource::Run()
 							// Convert the sensor timeto seconds as a double
 
 							double hostTime = (*(float*)&ReceiveBuffer[BlissPacketDefinition::Host_Time]);
-							double sensorTime = (*(float*)&ReceiveBuffer[BlissPacketDefinition::Sensor_Time]);
+							double rawSensorTime = (*(float*)&ReceiveBuffer[BlissPacketDefinition::Sensor_Time]);
 							double unrealTime = FPlatformTime::Seconds();
 
-							sensorTime = sensorTime / 1000000.0;
+							double sensorTime = rawSensorTime / 1000000.0;
 							double sensorDelta = sensorTime - lastSensorTime;
 							double hostDelta = hostTime - lastHostTime;
 							double unrealDelta = unrealTime - lastUnrealTime;
 							double arrivalJitter = sensorDelta - unrealDelta;
 
-							//							UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Sensor Time %f sensordelta %f hostdelta %f unrealdelta %f delivery jitter %f"), sensorTime, sensorDelta, hostDelta, unrealDelta, arrivalJitter);
+							if(lastRawSensorTime == rawSensorTime || lastSensorTime == sensorTime)
+								UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Sensor Time %f, lastSensorTime %f sensordelta %f, rawSensorDelta %f"), sensorTime, lastSensorTime, sensorDelta, rawSensorTime - lastRawSensorTime);
+							
 							lastSensorTime = sensorTime;
 							lastHostTime = hostTime;
 							lastUnrealTime = unrealTime;
+							lastRawSensorTime = rawSensorTime;
 
 #if 0  // add this back when we have some encoder data.
 							int32 FocalLengthInt = Decode_Unsigned_24(&ReceiveBuffer[BlissPacketDefinition::FocalLength]);
@@ -387,7 +372,7 @@ uint32 FLiveLinkBlissSource::Run()
 
 							// Define variables for some data we don't have yet
 
-							int CameraId = 0;
+							int CameraId = 1;
 							float FocalLength = 0;
 							float FocusDistance = 0;
 							float UserDefinedData = 0;
@@ -398,10 +383,21 @@ uint32 FLiveLinkBlissSource::Run()
 							FLiveLinkCameraFrameData* CameraFrameData = FrameData.Cast<FLiveLinkCameraFrameData>();
 							CameraFrameData->Transform = tTransform;
 #if 1
+							if (SavedSourceSettings->bUseTimestamps)
+							{
+								UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Timestamps ON"));
+								CameraFrameData->WorldTime = sensorTime;
+							}
+							else 
+							{ 
+								UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Timestamps OFF")); 
+							}
+							//!!!GAC need to add setting so timestamps can turn on and off.
 							if (SavedSourceSettings->UserDefinedEncoderData.bIsValid)
 							{
 							UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Sensor Time %f sensordelta %f hostdelta %f unrealdelta %f delivery jitter %f"), sensorTime, sensorDelta, hostDelta, unrealDelta, arrivalJitter);
 							}
+#if 0
 							if (SavedSourceSettings->FocusDistanceEncoderData.bIsValid)
 							{
 								CameraFrameData->WorldTime = sensorTime;
@@ -419,6 +415,7 @@ uint32 FLiveLinkBlissSource::Run()
 									lastFocalDistance = SavedSourceSettings->FocusDistanceEncoderData.bIsValid;
 								}
 							}
+#endif
 #else
 							if (SavedSourceSettings->bSendExtraMetaData)
 							{
