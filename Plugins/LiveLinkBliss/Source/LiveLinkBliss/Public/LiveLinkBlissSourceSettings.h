@@ -40,7 +40,8 @@ UENUM(BlueprintType)
 enum class EBlissDefaultConfigs : uint8
 {
 	Bliss,
-	BlissNoTimeStamps
+	BlissNoTimeStamps,
+	BlissPrintStatistics
 };
 
 UCLASS()
@@ -72,5 +73,6 @@ public:
 	// !!!GAC add flag for using timestamps
 //	UPROPERTY(EditAnywhere, Category = "Source")
 		bool bUseTimestamps = true;
+		bool bPrintTimeStats = false;
 
 };

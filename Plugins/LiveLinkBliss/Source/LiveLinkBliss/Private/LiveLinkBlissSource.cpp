@@ -184,18 +184,30 @@ void FLiveLinkBlissSource::OnSettingsChanged(ULiveLinkSourceSettings* Settings, 
 			{
 				switch (SourceSettings->DefaultConfig)
 				{
-					case EBlissDefaultConfigs::Bliss:		SourceSettings->FocusDistanceEncoderData = FBlissEncoderData({ false, false, false, 0, 0xffff, 0x0000ffff });
-															SourceSettings->FocalLengthEncoderData = FBlissEncoderData({ false, false, false, 0, 0xffff, 0x0000ffff });
-															SourceSettings->UserDefinedEncoderData = FBlissEncoderData({ false });
-															UE_LOG(LogLiveLinkBliss, Warning, TEXT("Bliss is using new timestamps"));
-															SavedSourceSettings->bUseTimestamps = true;
-															break;
-					case EBlissDefaultConfigs::BlissNoTimeStamps:		SourceSettings->FocusDistanceEncoderData = FBlissEncoderData({ false, false, false, 0, 0xffff, 0x0000ffff });
-															SourceSettings->FocalLengthEncoderData = FBlissEncoderData({ false, false, false, 0, 0xffff, 0x0000ffff });
-															SourceSettings->UserDefinedEncoderData = FBlissEncoderData({ false });
-															UE_LOG(LogLiveLinkBliss, Warning, TEXT("Bliss with NO timestamps (old method, like FreeD)"));
-															SavedSourceSettings->bUseTimestamps = false;
-															break;
+					case EBlissDefaultConfigs::Bliss:		
+						SourceSettings->FocusDistanceEncoderData = FBlissEncoderData({ false, false, false, 0, 0xffff, 0x0000ffff });
+						SourceSettings->FocalLengthEncoderData = FBlissEncoderData({ false, false, false, 0, 0xffff, 0x0000ffff });
+						SourceSettings->UserDefinedEncoderData = FBlissEncoderData({ false });
+						UE_LOG(LogLiveLinkBliss, Log, TEXT("Bliss time stamps ON (recommended)"));
+						SavedSourceSettings->bUseTimestamps = true;
+						SavedSourceSettings->bPrintTimeStats = false;
+						break;
+					case EBlissDefaultConfigs::BlissNoTimeStamps:		
+						SourceSettings->FocusDistanceEncoderData = FBlissEncoderData({ false, false, false, 0, 0xffff, 0x0000ffff });
+						SourceSettings->FocalLengthEncoderData = FBlissEncoderData({ false, false, false, 0, 0xffff, 0x0000ffff });
+						SourceSettings->UserDefinedEncoderData = FBlissEncoderData({ false });
+						UE_LOG(LogLiveLinkBliss, Log, TEXT("Bliss time stamps OFF (old, for test only)"));
+						SavedSourceSettings->bUseTimestamps = false;
+						SavedSourceSettings->bPrintTimeStats = false;
+						break;
+					case EBlissDefaultConfigs::BlissPrintStatistics:		
+						SourceSettings->FocusDistanceEncoderData = FBlissEncoderData({ false, false, false, 0, 0xffff, 0x0000ffff });
+						SourceSettings->FocalLengthEncoderData = FBlissEncoderData({ false, false, false, 0, 0xffff, 0x0000ffff });
+						SourceSettings->UserDefinedEncoderData = FBlissEncoderData({ false });
+						UE_LOG(LogLiveLinkBliss, Log, TEXT("Bliss Bliss time stamps ON and printing time stats"));
+						SavedSourceSettings->bUseTimestamps = true;
+						SavedSourceSettings->bPrintTimeStats = true;
+						break;
 				}
 
 				bFocusDistanceEncoderDataChanged = true;
@@ -313,7 +325,7 @@ uint32 FLiveLinkBlissSource::Run()
 						{
 							UE_LOG(LogLiveLinkBliss, Error, TEXT("LiveLinkBlissSource: Received a packet, but we don't have a valid SavedSourceSettings!"));
 						}
-						else // if (ReceiveBuffer[BlissPacketDefinition::PacketType] == BlissPacketDefinition::PacketTypeD1)
+						else // This could be a if-else chain to handle different kinds of packets, right now there is just one
 						{
 							// Warn if we didn't get the right size packet
 
@@ -340,7 +352,7 @@ uint32 FLiveLinkBlissSource::Run()
 							FVector    tScale = FVector(1.0, 1.0, 1.0);
 							FTransform tTransform = FTransform(tQuat, tLocation, tScale);
 
-							// Convert the sensor timeto seconds as a double
+							// Convert the sensor time to seconds as a double
 
 							double hostTime = (*(float*)&ReceiveBuffer[BlissPacketDefinition::Host_Time]);
 							double rawSensorTime = (*(float*)&ReceiveBuffer[BlissPacketDefinition::Sensor_Time]);
@@ -353,14 +365,14 @@ uint32 FLiveLinkBlissSource::Run()
 							double arrivalJitter = sensorDelta - unrealDelta;
 
 							if(lastRawSensorTime == rawSensorTime || lastSensorTime == sensorTime)
-								UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Sensor Time %f, lastSensorTime %f sensordelta %f, rawSensorDelta %f"), sensorTime, lastSensorTime, sensorDelta, rawSensorTime - lastRawSensorTime);
+								UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Two times were the same! Sensor Time %f, lastSensorTime %f sensordelta %f, rawSensorDelta %f"), sensorTime, lastSensorTime, sensorDelta, rawSensorTime - lastRawSensorTime);
 							
 							lastSensorTime = sensorTime;
 							lastHostTime = hostTime;
 							lastUnrealTime = unrealTime;
 							lastRawSensorTime = rawSensorTime;
 
-#if 0  // add this back when we have some encoder data.
+#if 0						// This is how FreeD handled lens encoder data, bliss doesn't have it yet
 							int32 FocalLengthInt = Decode_Unsigned_24(&ReceiveBuffer[BlissPacketDefinition::FocalLength]);
 							int32 FocusDistanceInt = Decode_Unsigned_24(&ReceiveBuffer[BlissPacketDefinition::FocusDistance]);
 							int32 UserDefinedDataInt = Decode_Unsigned_16(&ReceiveBuffer[BlissPacketDefinition::UserDefined]);
@@ -370,7 +382,7 @@ uint32 FLiveLinkBlissSource::Run()
 							float UserDefinedData = ProcessEncoderData(SavedSourceSettings->UserDefinedEncoderData, UserDefinedDataInt);
 #endif
 
-							// Define variables for some data we don't have yet
+							// Define some dummy values for  data bliss doesn't send us yet
 
 							int CameraId = 1;
 							float FocalLength = 0;
@@ -382,41 +394,26 @@ uint32 FLiveLinkBlissSource::Run()
 							FLiveLinkFrameDataStruct FrameData(FLiveLinkCameraFrameData::StaticStruct());
 							FLiveLinkCameraFrameData* CameraFrameData = FrameData.Cast<FLiveLinkCameraFrameData>();
 							CameraFrameData->Transform = tTransform;
-#if 1
+							CameraSubjectName = FString::Printf(TEXT("Camera %d"), CameraId);
+
+							// If timestamps are turned on, put them in the LiveLink data
 							if (SavedSourceSettings->bUseTimestamps)
 							{
-								UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Timestamps ON"));
+//								UE_LOG(LogLiveLinkBliss, Log, TEXT("LiveLinkBlissSource: Timestamps ON"));
 								CameraFrameData->WorldTime = sensorTime;
 							}
 							else 
 							{ 
-								UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Timestamps OFF")); 
+//								UE_LOG(LogLiveLinkBliss, Log, TEXT("LiveLinkBlissSource: Timestamps OFF"));
 							}
-							//!!!GAC need to add setting so timestamps can turn on and off.
-							if (SavedSourceSettings->UserDefinedEncoderData.bIsValid)
+
+							// If bPrintTimeStats are on, print them to the log
+							if (SavedSourceSettings->bPrintTimeStats)
 							{
-							UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Sensor Time %f sensordelta %f hostdelta %f unrealdelta %f delivery jitter %f"), sensorTime, sensorDelta, hostDelta, unrealDelta, arrivalJitter);
+								UE_LOG(LogLiveLinkBliss, Log, TEXT("LiveLinkBlissSource: Sensor Time %f sensordelta %f hostdelta %f unrealdelta %f delivery jitter %f"), sensorTime, sensorDelta, hostDelta, unrealDelta, arrivalJitter);
 							}
-#if 0
-							if (SavedSourceSettings->FocusDistanceEncoderData.bIsValid)
-							{
-								CameraFrameData->WorldTime = sensorTime;
-								if (SavedSourceSettings->FocusDistanceEncoderData.bIsValid != lastFocalDistance)
-								{
-									UE_LOG(LogLiveLinkBliss, Warning, TEXT("Using NEW Sensor timing method"));
-									lastFocalDistance = SavedSourceSettings->FocusDistanceEncoderData.bIsValid;
-								}
-							}
-							else
-							{
-								if (SavedSourceSettings->FocusDistanceEncoderData.bIsValid != lastFocalDistance)
-								{
-									UE_LOG(LogLiveLinkBliss, Warning, TEXT("Using OLD timing method"));
-									lastFocalDistance = SavedSourceSettings->FocusDistanceEncoderData.bIsValid;
-								}
-							}
-#endif
-#else
+
+#if 0						// This is how FreeD handled lens encoder data, bliss doesn't have it yet
 							if (SavedSourceSettings->bSendExtraMetaData)
 							{
 								CameraFrameData->MetaData.StringMetaData.Add(FName(TEXT("CameraId")), FString::Printf(TEXT("%d"), CameraId));
@@ -436,17 +433,20 @@ uint32 FLiveLinkBlissSource::Run()
 								CameraFrameData->Aperture = UserDefinedData;
 							}
 #endif
-						
-							CameraSubjectName = FString::Printf(TEXT("Camera %d"), CameraId);
+							// Send the bliss data into LiveLink
+
 							Send(&FrameData, FName(CameraSubjectName));
 
 							FrameCounter++;
 						}
-						// If there were multiple packet types we would have an alarm about it here.
-//						else
-//						{
-//							UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Unsupported Bliss message type 0x%02x"), ReceiveBuffer[BlissPacketDefinition::PacketType]);
-//						}
+#if 0
+						// If there were multiple packet types we would add an if-else here to handle them
+						else
+						{
+							// If there were multiple packet types, we would complain about unknown types here.
+							UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Unsupported Bliss message type 0x%02x"), ReceiveBuffer[BlissPacketDefinition::PacketType]);
+						}
+#endif
 					}
 				}
 			}
