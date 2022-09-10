@@ -4,7 +4,7 @@ These plugins are experimental and have NOT been heavily tested.  No guarantees,
 
 Please AT LEAST read the release section below when you update, how things work will be changing
 
-This is an active development repository, if you are not interested in the code, recommend grabbing files from the RELEASES section instead.  It is smaller.
+This is an active development repository, The releases section here https://github.com/MiloMindbender/LiveLinkPlugins/releases/tag/release_2 has this release has a zip with all the source code and test project as well as a zip with the plugin only.
 
 # RELEASE 2 changes
 
