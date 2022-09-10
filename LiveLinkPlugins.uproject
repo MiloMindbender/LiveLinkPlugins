@@ -57,6 +57,10 @@
 		{
 			"Name": "LiveLinkBliss",
 			"Enabled": true
+		},
+		{
+			"Name": "CameraCalibration",
+			"Enabled": true
 		}
 	]
 }
