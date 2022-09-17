@@ -12,7 +12,7 @@ This assumes you have an existing Virtual Production project of your own or know
 
 Please go to the [releases page here](https://github.com/MiloMindbender/LiveLinkPlugins/releases) and get the latest "prebuilt" plugin for the version of unreal you are using.  If you need C++ source code for some reason, read [this](README_Full_Install.md) but most people will only need the "prebuilt" one.  If, at any time, you get a message saying the plugin was not compiled for your version of unreal, jump down to the "install problems" section.
 
-!. To install in your own project, go to the project folder and create a new folder called "Plugins"
+1. To install in your own project, go to the project folder and create a new folder called "Plugins"
 2. Unzip the "prebuilt" zip file into the plugins folder.  This will create a "LiveLinkBliss" folder inside "Plugins"
 3. Launch Unreal  
 4. Go to Edit->Plugins, search for LiveLinkBliss and check the box next to it to turn it on
