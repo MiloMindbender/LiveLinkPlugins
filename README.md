@@ -2,9 +2,9 @@
 
 This plugin brings Bliss tracking data into Unreal's LiveLink system.  To use it you need a Bliss tracker from [Rassi Engineering LTD](https://www.retracker.co/) 
 
-I am not an employee of Bliss/Rassi Engineering LTD.  I developed this Plugin to learn LiveLink which is a mystery to many people because Epic/Unreal has almost no documentation on it.  These plugins come with no warrantees or guarantees expressed or implied. You should try them and decide for yourself if they work well enough for your purposes.  Please report ANY problems to the github issues page [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues}
+I am not an employee of Bliss/Rassi Engineering LTD.  I developed this Plugin to learn LiveLink which is a mystery to many people because Epic/Unreal has almost no documentation on it.  These plugins come with no warrantees or guarantees expressed or implied. You should try them and decide for yourself if they work well enough for your purposes.  Please report ANY problems to the github issues page [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues)
 
-The full source code is available for free to anyone who wants to use it for any purpose, more info on that[here](README_Full_Install.md)
+The full source code is available for free to anyone who wants to use it for any purpose, more info on that [here](README_Full_Install.md)
 
 # Quick Install (DO NOT use the green CODE button)
 
@@ -29,7 +29,7 @@ Please go to the [releases page here](https://github.com/MiloMindbender/LiveLink
 
 At this point you should be able to move your camera in the real world and see it moving in Unreal.  
 
-PLEASE report any problems [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues}
+PLEASE report any problems [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues)
 
 # How to test
 
@@ -45,7 +45,7 @@ If you notice real objects and the CG ones are not staying aligned (foot slippin
 
 For Virtual Production Tutorials, and updates [subscribe to my youtube channel.](https://www.youtube.com/user/GregCorson)
 
-For issues with this LiveLink plugin, report them [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues}
+For issues with this LiveLink plugin, report them [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues)
 
 For more iinformation on the Bliss tracker and to contact it's developer [Rassi Engineering LTD](https://www.retracker.co/)
 
@@ -55,7 +55,7 @@ You can also talk to Bliss users on [Discord](https://discord.gg/SsftMDMZfJ)
 
 ## If you get a "plugin was not compiled for your version of unreal" message
 
-If you get this error, please report it [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues} and be sure to include the version of Unreal you are running (ie: 5.0.3) and whether or not you built Unreal from source.  If you are running 5.0.3 you should NOT get this error, so be sure to report it.
+If you get this error, please report it [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues) and be sure to include the version of Unreal you are running (ie: 5.0.3) and whether or not you built Unreal from source.  If you are running 5.0.3 you should NOT get this error, so be sure to report it.
 
 The error usually means you are running some version of unreal other than 5.0.3.  I will be making prebuilt plugins available for other versions of unreal if you ask.  Also it is fairly easy to rebuild the plugin yourself, see "compiling yourself" below for more info.
 
@@ -71,7 +71,7 @@ If the light next to Camera 1 is yellow, it means communication with the bliss a
 
 # Compiling it yourself
 
-You DON'T NEED TO DO THIS unless your unreal is complaining that the plugin "was not compiled for your version of unreal".  If this happens please let me know [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues}
+You DON'T NEED TO DO THIS unless your unreal is complaining that the plugin "was not compiled for your version of unreal".  If this happens please let me know [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues)
 
 I will try to get a version built for you, but you can also try building it yourself.  It is easy and completely automatic if you have the right software installed.  It only takes a couple of minutes.
 
@@ -87,7 +87,7 @@ Once Visual Studio and the "code only" plugin is installed in your Unreal projec
 
 If you don't get the compile warning message when you launch unreal, go into edit->Plugins, find the bliss plugin and make sure it is checked.  When you restart unreal it should ask you to do a build.
 
-If this process doesn't work for you, please tell me [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues}
+If this process doesn't work for you, please tell me [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues)
 
 # Coming Soon
 
