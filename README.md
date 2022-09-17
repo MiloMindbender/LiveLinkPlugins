@@ -1,124 +1,98 @@
-# LiveLink Plugins for Bliss tracker and Unreal Engine 5
+# LiveLink Plugins for Bliss tracker and Unreal Engine
 
-These plugins are experimental and have NOT been heavily tested.  No guarantees, save frequently when using.
+This plugin brings Bliss tracking data into Unreal's LiveLink system.  To use it you need a Bliss tracker from [Rassi Engineering LTD](https://www.retracker.co/) 
 
-Please AT LEAST read the release section below when you update, how things work will be changing
+I am not an employee of Bliss/Rassi Engineering LTD.  I developed this Plugin to learn LiveLink which is a mystery to many people because Epic/Unreal has almost no documentation on it.  These plugins come with no warrantees or guarantees expressed or implied. You should try them and decide for yourself if they work well enough for your purposes.  Please report ANY problems to the github issues page [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues}
 
-This is an active development repository, The releases section here https://github.com/MiloMindbender/LiveLinkPlugins/releases/tag/release_2 has this release has a zip with all the source code and test project as well as a zip with the plugin only.
+The full source code is available for free to anyone who wants to use it for any purpose, more info on that[here](README_Full_Install.md)
 
-# RELEASE 2 changes
+# Quick Install (DO NOT use the green CODE button)
 
-* Shows up as Camera 1 instead of zero.  You will need to change your LiveLinkSubjest in the camera.
-* The way of switching time stamps and debug data on and off has changed.  It's now set in LiveLinkBliss source->default config.
-* FocusDistance, focal length and user defined encoder data now do nothing.
-* Added the Bliss icon to the plugin
-* Updated/shortened documents
-* Changes and cleanup of the code and project
+This assumes you have an existing Virtual Production project of your own or know how to create one.  Later I will have a full video tutorial and sample unreal project showing how to set up a project from scratch.
 
-# For Unreal Engine 5.0.3
+Please go to the [releases page here](https://github.com/MiloMindbender/LiveLinkPlugins/releases) and get the latest "prebuilt" plugin for the version of unreal you are using.  If you need C++ source code for some reason, read [this](README_Full_Install.md) but most people will only need the "prebuilt" one.  If, at any time, you get a message saying the plugin was not compiled for your version of unreal, jump down to the "install problems" section.
 
-It may work on other versions but I haven't tested them.  I have reports it works for 4.27 if you build it yourself.
+!. To install in your own project, go to the project folder and create a new folder called "Plugins"
+2. Unzip the "prebuilt" zip file into the plugins folder.  This will create a "LiveLinkBliss" folder inside "Plugins"
+3. Launch Unreal  
+4. Go to Edit->Plugins, search for LiveLinkBliss and check the box next to it to turn it on
+5. Also search for "LiveLink" and "TimedDataMonitor" make sure they are checked also.
+6. If unreal has asked you to restart, do that now.
+7. If the Bliss app is not already running, please start it now.
+8. Open up the Live Link and Timed Data Monitor windows in Unreal.
+9. In the LiveLink window, click +source" and choose "LiveLinkBliss Source"  If Bliss is running on the same machine as unreal, the defaults should be right.  If bliss is running on a different machine or you have changed the bliss settings, you will need to enter the IP/port here.  For Bliss 0.8.5 or newer, the correct setting is shown on the app screen as "LiveLink Bliss"  For earlier versions of bliss, use port 7000. Press "add" when done.
+9. You should see Camera 1 with a green light next to it in the LiveLink window.  In the upper part of the LiveLink window under "Source Type" click on Bliss.
+10. In the right hand window, expand the "Buffer - Settings".  For now set "Max Number Of Frames to Buffered" to 500 and offset to .14 Later you will need to adjust the offset till the tracking and live camera are in sync.
+11. Your existing Virtual Production project should already have a CineCameraActor setup in it that matche your real camera.  Find this in the world outliner and click it.
+12. If your CineCameraActor does not already contain a LiveLinkControlerComponent, click the +add button and add one
+13. Make sure the "subject representation" in the LiveLinkControllerComponent is pointed at your "Camera 1" LiveLinkBliss source.
 
-# To build it requires Microsoft Visual Studio Community Edition (free)
+At this point you should be able to move your camera in the real world and see it moving in Unreal.  
 
-I am working on doing releases that will not require this, but for now you need to have Microsoft Visual Studio Community Edition to build it.  The 2022 version is best, "paid" versions of Visual studio also work.  Check the Visual Studio installer and make sure you have the "workloads" for "desktop develpment with C++" and "game development with C++" or the build may fail.  Please let me know if you have trouble.
+PLEASE report any problems [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues}
 
-# Requires the right Bliss app
+# How to test
 
-Requires Retracker-Bliss-0.8.4.exe Bliss available from here https://www.dropbox.com/s/ixz3tad4ujhrjus/Retracker-Bliss-0.8.4.exe?dl=0app It does NOT work with the original bliss app.
+It's possible to be run Bliss over FreeD (the old way) and through LiveLinkBliss AT THE SAME TIME.  You want to make sure you are using LiveLinkBliss.  The easiest way to do this is to go to your LiveLink window, if you see any "Source Type" FreeD, just close them so only Bliss sources remain.  If you're CineCameraActor stops tracking, make sure it's livelink component "Subject representation" is pointed at the bliss source.
 
-# This contains 3 LiveLink Plugins, use the right one!
+If you want, you can leave FreeD and LiveLinkBliss running at the same time and switch between them by changing the "subject representation" in the livelink component of your CineCameraActor.
 
-When you click +source in LiveLink you will see 3 different LiveLink sources.  Please ONLY use LiveLinkBliss Source, the others are reference code for me and do not work.
+Test this plugin by using Bliss as you normally would.  Try moving the camera at different speeds from fast to very slow, even shaking it.  Try it on a tripod, motion control rig or handheld.  You should not see any jumps or unwanted jiggle as the camera moves.  If you move the camera suddenly and the CG and Video get out of sync, then line back up when you stop, the "offset" time needs to be adjusted to sync them up.  The offset with this plugin may be a little different than it was for Bliss on FreeD.
 
-# UniversalRig
+If you notice real objects and the CG ones are not staying aligned (foot slipping) as you pan the camera, this is an issue with your lens calibration and nodal offset, not Bliss or the plugin.
 
-This is a plugin used to adjust the relationship between camera and tracker.  At the moment it is not required to use the LiveLink plugin or the sample project.
+# Contact Us
 
-# What LiveLinkBliss Source does
+For Virtual Production Tutorials, and updates [subscribe to my youtube channel.](https://www.youtube.com/user/GregCorson)
 
-This LiveLink plugin uses a time stamp generated on the Bliss sensor.  Unreal will correct timing errors that can occur when tracking is sent over a network.  If the Bliss app is running on a different machine than unreal and communicating over wired ethernet or WiFi this should avoid errors due to delayed or lost packets.  If you run the Bliss app on the SAME machine as Unreal, you may not notice any change.
+For issues with this LiveLink plugin, report them [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues}
 
-The time stamp feature can be turned on and off so you can see if it makes a difference in your tracking.
+For more iinformation on the Bliss tracker and to contact it's developer [Rassi Engineering LTD](https://www.retracker.co/)
 
-Currently only supports ONE Bliss sensor.
+You can also talk to Bliss users on [Discord](https://discord.gg/SsftMDMZfJ)
 
-# SETUP the test project
+# Install Problems / Troubleshooting
 
-Since this is a test plugin with full source code, these instructions assume you are familiar with Unreal.  Eventually there will be a video tutorial and an easier to install version.
+## If you get a "plugin was not compiled for your version of unreal" message
 
-Either get a zip of this repository or clone it to your computer with git.  The repo should have everything you need to test the livelink plugin, it's a full Unreal Engine 5 test project.
+If you get this error, please report it [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues} and be sure to include the version of Unreal you are running (ie: 5.0.3) and whether or not you built Unreal from source.  If you are running 5.0.3 you should NOT get this error, so be sure to report it.
 
-The project has a setup with a lens distortion file, nodal offset and Virtual FIZ object so you can see how to hook them up.  These are for my camera and WILL BE WRONG for yours! Either supply your own or disconnect them.
+The error usually means you are running some version of unreal other than 5.0.3.  I will be making prebuilt plugins available for other versions of unreal if you ask.  Also it is fairly easy to rebuild the plugin yourself, see "compiling yourself" below for more info.
 
-1. Get REtracker Bliss (telemetry version) running as you usually do. Use the same RETracker settings file you usually do.  Make sure the render_osc_ip is set to the same address as renderer_freed_ip.  renderer_osc_port can be set to anything, the default setup is 7000.
-2. Start unreal and load the sample project
-3. If Unreal asks you to build plugins, say yes.  It may take a minute or two, it will appear nothing is happening.
-4. Go to the plugins menu in Unreal, you should see 4 plugins listed under "project" at the top.  BlissTracker, LiveLinkBliss, LiveLinkFreeD and UniversalRig.  Only LiveLinkBliss needs to be checked.
-5. If Unreal tells you to restart, do it.
-6. Under Windows->Virtual Production open up LiveLink and TimedDataMonitor
-7. In the LiveLink window, click +source" and choose "LiveLinkBliss Source"  If Bliss is running on the same machine as unreal, the defaults should be right, if it is on a remote PC you will need to change it.  The default port is 7000 unless you changed it in the Bliss settings file.  Press "add" when done.
-8. If Bliss is running you should see Camera 1 with a green light next to it. In the upper part of the livelink window, click on the Bliss source.  Expand all the categories in the right hand window.
-9. Scroll down in this window, and set your "max number of frames to buffer" to 500.  The MINIMUM setting for this is your tracking delay multiplied by 500 plus about 25 for safety. It does not hurt to set it a bit high.
-10. The project is currently setup for an AJA video input card, if you are using something else set it up as a source in the way you usually do.  Remember to go into the media plate and set the media source there for your card.
-11. Once your video source is setup and running you should see it and the Bliss in the Timed Data Monitor with a green "synchronized" light.
-12. Go into "CineCameraActor" and set this up to match your real world camera.  Sensor size, and focal length must match your lens.  You may also need to adjust focus and Aperture to get a clear image.  If you aren't using a lens distortion file, disconnect it in the LiveLinkComponentController.
-13. Put an apriltag on the floor close to the camera and do a worldpose in Bliss.  After this if you look at 0010_comp in the UE project you should see your video source.  There will be a skeletal box with one corner over the center of the apriltag.  To the right of that you will see a CG apriltag and a bit further over a mannequin.  You may have to pan around to see this, your studio setup is probably different from mine.
+## When I add the LiveLinkBlis Source I don't see a Camera 1 Subject or the light is yellow instead of green
 
-The test project has a lens distortion file and is setup for my camera's nodal offset.  If you already have a lens distortion file with an offset, just copy it into this project, go to the CineCameraActor's LiveLinkComponentController and change it to your file.
+This means you have the wrong communications settings, or you bliss app has stopped running for some reason.
 
-# To use with an existing Unreal Virtual production project.
+Make sure the bliss app is running, showing confidence 100 and a FPS of around 500.  Also check the cmd window for any errors.
 
-Go into your project folder and create a "Plugins" folder.  Copy the "LiveLinkBliss" folder from the Plugins folder of the sample project to your project's Plugins folder.  Go to settings->plugins and make sure LiveLinkBliss is turned on.  From this point LiveLinkBliss should function about the same as the old LiveLinkFreeD you had in your project for Bliss before.
+If you are running Bliss App 0.8.5 or newer, the correct IP/Port should be shown next to "LiveLink Bliss".  For older versions of Bliss the IP and port will be whatever is shown next to "OSC"  If your bliss app is older than 0.8.5 you should probably update it.  You need at least bliss 0.8.4 with "livelink" in it's name.
 
-# How to test (read carefully!)
+If the light next to Camera 1 is yellow, it means communication with the bliss app was working but isn't now.  This is usually caused by the Bliss app being closed or some kind of communications error like an unplugged or bad cable.  Make sure your Bliss app is still running and there are no errors in the cmd window.  You can try closing the bliss app, optionally power cycling the Bliss sensor and restarting Bliss.  If your bliss is running on a different computer, make sure communications between your computers is still working
 
-When you setup "LiveLinkBliss Source" it will be using the NEW way of handling time which should be better.  We need to test this to see if it works better than the old way.
+# Compiling it yourself
 
-Please report any changes in how your Bliss works, good or bad.
+You DON'T NEED TO DO THIS unless your unreal is complaining that the plugin "was not compiled for your version of unreal".  If this happens please let me know [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues}
 
-## Switching between old and new timing
+I will try to get a version built for you, but you can also try building it yourself.  It is easy and completely automatic if you have the right software installed.  It only takes a couple of minutes.
 
-If you want to compare using time stamps (new way) to not using them (old way), here is how to switch.
+## What you need to build
 
-Click on the Bliss source in the LiveLink window.  Expand the "source" area in the right hand window.  Under "Source" Default Config is near the top.  Set this to "Bliss" to get the latest version which uses time stamps.  Select "Bliss No Time Stamps" for the old version without them.
+Get the "code only" zip file, follow steps 1 and 2 above to install it in your project.
 
-## Tests to try
+You also need to install Microsoft Visual Studio.  If you don't have it, the "community edition" is free from Microsoft.  When you do the install, make sure the "workloads" for "desktop develpment with C++" and "game development with C++" are checked in the installer.  It may take awhile to download this.
 
-Use Bliss as you normally would, try moving the camera fast, very slow and using a handheld camera.  If you want you can compare timestamps ON and timestamps OFF.  Please let me know if you see any improvements or problems when you have the new timing mode turned on.
+## How to build
 
-You may NOT notice any difference, it will depend on how fast and how busy your network is, and if you are running Bliss and Unreal on the same computer.
+Once Visual Studio and the "code only" plugin is installed in your Unreal project, just start Unreal.  You should get the "plugin was not compiled for your version of unreal" message.  Click the box to tell it to build the plugin.  It may take a minute or two to build and there won't be any prograss dialog on the screen while it is happening, then Unreal should launch.
 
---IMPORTANT-- The "offset/time correction" (tracking delay) might be a little different from the numbers you used with Bliss and FreeD.  Be sure to re-check your delay to make sure it is still right.
+If you don't get the compile warning message when you launch unreal, go into edit->Plugins, find the bliss plugin and make sure it is checked.  When you restart unreal it should ask you to do a build.
 
-## Switching between LiveLinkBliss and FreeD
+If this process doesn't work for you, please tell me [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues}
 
-Bliss still sends LiveLink and FreeD data, so you can open the LiveLinkFreeD source and have it connected at the same time as LiveLinkBliss source.  Both should display a green light in the LiveLink window.
+# Coming Soon
 
-Once you have both open you can go into the LiveLinkComponentController in your camera and switch the subject between the freed and LiveLink source.
+Availibility from the Epic/Unreal marketplace for easier installs
 
-## Logging some test data for me
+Video tutorial on how to setup a Virtual Production project
 
-LiveLinkBliss Source can also log some data about your network that would be helpful for me to see.  Please capture a bit of it and send it to me.
-
-Open up the Unreal Output Log window.
-
-Click on the bliss source in the LiveLink window.  Expand the "source" area in the right hand window.  Under "Default Config" select "Bliss Print Statistics" briefly, then switch back to "Bliss"  In the unreal output window you should see a bunch of lines appear that look like this
-
-LogLiveLinkBliss: Warning: LiveLinkBlissSource: Sensor Time 3141.635328 sensordelta 0.001280 hostdelta 0.000000 unrealdelta 0.001531 delivery jitter -0.000251
-
-Please copy about a dozen lines of this output and send them to me.
-
-# Coming soon
-
-Instructions on how to use an Unreal Lens file.
-
-I will also be adding information on how to setup your worldpose, floor position and tracking center using an Aruco tag.
-
-
-
-
-
-
-
-
+A ready-to-use Unreal sample project.
