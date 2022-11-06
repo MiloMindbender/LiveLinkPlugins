@@ -17,5 +17,5 @@ public:
 
 	/** UDP port number */
 	UPROPERTY(EditAnywhere, Category = "Connection Settings")
-	uint16 UDPPortNumber = 7000;
+	uint16 UDPPortNumber = 50000;
 };

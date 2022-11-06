@@ -19,6 +19,7 @@
 
 // These consts must be defined here in the CPP for non-MS compiler issues
 
+#if 0
 const uint8 BlissPacketDefinition::PacketSize = 60;
 
 const uint8 BlissPacketDefinition::X =					0;
@@ -36,6 +37,25 @@ const uint8 BlissPacketDefinition::Unfiltered_Yaw =		44;
 const uint8 BlissPacketDefinition::Confidence =			48;
 const uint8 BlissPacketDefinition::Host_Time =			52;
 const uint8 BlissPacketDefinition::Sensor_Time =		56;
+#else
+const uint8 BlissPacketDefinition::PacketSize = 60;
+
+const uint8 BlissPacketDefinition::X = 0;
+const uint8 BlissPacketDefinition::Y = 4;
+const uint8 BlissPacketDefinition::Z = 8;
+const uint8 BlissPacketDefinition::Roll = 12;
+const uint8 BlissPacketDefinition::Pitch = 16;
+const uint8 BlissPacketDefinition::Yaw = 20;
+const uint8 BlissPacketDefinition::Padding1 = 24;
+const uint8 BlissPacketDefinition::Padding2 = 28;
+const uint8 BlissPacketDefinition::Padding3 = 32;
+const uint8 BlissPacketDefinition::Padding4 = 36;
+const uint8 BlissPacketDefinition::Message_Type = 40;
+const uint8 BlissPacketDefinition::Camera_ID = 44;
+const uint8 BlissPacketDefinition::Confidence = 48;
+const uint8 BlissPacketDefinition::Host_Time = 52;
+const uint8 BlissPacketDefinition::Sensor_Time = 56;
+#endif
 
 //-------------------------------------------------------------------------------------------------------------------------------
 // FLiveLinkBlissSource constructor
@@ -299,6 +319,7 @@ uint32 FLiveLinkBlissSource::Run()
 	static double lastUnrealTime = 0.0;
 	static double lastRawSensorTime = 0.0;
 	static bool   lastFocalDistance = false;
+	float debugger[60];
 
 	// Free-D max data rate is 100Hz
 	const FTimespan SocketTimeout(FTimespan::FromMilliseconds(10));
@@ -320,6 +341,8 @@ uint32 FLiveLinkBlissSource::Run()
 					// If we got some data, process it.
 					if (ReceivedDataSize > 0)
 					{
+						memset(debugger, 0, 240);
+						memcpy(debugger, &ReceiveBuffer[0], ReceivedDataSize);
 						// !!!GAC not sure what the source settings do yet!
 						if (SavedSourceSettings == nullptr)
 						{
@@ -331,7 +354,8 @@ uint32 FLiveLinkBlissSource::Run()
 
 							if (ReceivedDataSize != BlissPacketDefinition::PacketSize)
 							{
-								UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Received packet length mismatch - received 0x%02x, calculated 0x%02x"), ReceivedDataSize, BlissPacketDefinition::PacketSize);
+//								UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Received packet length mismatch - received 0x%02x, calculated 0x%02x"), ReceivedDataSize, BlissPacketDefinition::PacketSize);
+								UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Received packet length mismatch - received %d, calculated %d"), ReceivedDataSize, BlissPacketDefinition::PacketSize);
 							}
 
 							// There is currently only one type of message to receive, this parses it out.
@@ -382,9 +406,18 @@ uint32 FLiveLinkBlissSource::Run()
 							float UserDefinedData = ProcessEncoderData(SavedSourceSettings->UserDefinedEncoderData, UserDefinedDataInt);
 #endif
 
-							// Define some dummy values for  data bliss doesn't send us yet
+							// Handle release 2 format and release 3 test format
 
-							int CameraId = 1;
+							float messageType = *(float*)&ReceiveBuffer[BlissPacketDefinition::Message_Type];
+							float CameraId    = *(float*)&ReceiveBuffer[BlissPacketDefinition::Camera_ID];
+
+							if (messageType != 1.0f)
+							{
+								CameraId = 1;
+							}
+					
+//							int CameraId = 1;
+//							int CameraId = *(float*)&ReceiveBuffer[BlissPacketDefinition::Camera_ID];
 							float FocalLength = 0;
 							float FocusDistance = 0;
 							float UserDefinedData = 0;
@@ -394,7 +427,7 @@ uint32 FLiveLinkBlissSource::Run()
 							FLiveLinkFrameDataStruct FrameData(FLiveLinkCameraFrameData::StaticStruct());
 							FLiveLinkCameraFrameData* CameraFrameData = FrameData.Cast<FLiveLinkCameraFrameData>();
 							CameraFrameData->Transform = tTransform;
-							CameraSubjectName = FString::Printf(TEXT("Camera %d"), CameraId);
+							CameraSubjectName = FString::Printf(TEXT("Camera %.0f"), CameraId);
 
 							// If timestamps are turned on, put them in the LiveLink data
 							if (SavedSourceSettings->bUseTimestamps)

@@ -1,15 +1,15 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.0",
+	"VersionName": "3.0",
 	"FriendlyName": "LiveLinkBliss",
 	"Description": "Live Link plugin for the Bliss protocol",
 	"Category": "Virtual Production",
 	"CreatedBy": "Greg Corson",
-	"CreatedByURL": "http://epicgames.com",
-	"DocsURL": "",
+	"CreatedByURL": "https://www.youtube.com/user/GregCorson",
+	"DocsURL": "https://www.youtube.com/user/GregCorson",
 	"MarketplaceURL": "",
-	"SupportURL": "",
+	"SupportURL": "https://www.youtube.com/user/GregCorson",
 	"CanContainContent": true,
 	"IsBetaVersion": true,
 	"IsExperimentalVersion": false,
@@ -25,7 +25,11 @@
 		{
 			"Name": "LiveLinkBliss",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Win32"
+			]
 		}
 	]
 }
