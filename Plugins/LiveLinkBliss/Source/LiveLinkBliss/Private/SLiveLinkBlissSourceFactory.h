@@ -1,5 +1,7 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
+// Portions Copyright Epic Games, Inc. All Rights Reserved.
+// Portions Copyright Greg Corson, All Rights Reserved
+// This LiveLink code is based on the original Epic FreeD plugin, this was necessary because Epic does not supply documentation on how to use LiveLink
+// I have added comments to make the code easier to understand.
 #pragma once
 
 #include "LiveLinkBlissConnectionSettings.h"
@@ -11,6 +13,8 @@
 #endif //WITH_EDITOR
 
 #include "Input/Reply.h"
+
+// This is boiler plate code that all LiveLink plugins need to have.
 
 struct FLiveLinkBlissConnectionSettings;
 

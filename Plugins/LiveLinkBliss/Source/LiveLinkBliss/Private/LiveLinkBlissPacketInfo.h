@@ -1,13 +1,17 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
+// Portions Copyright Epic Games, Inc. All Rights Reserved.
+// Portions Copyright Greg Corson, All Rights Reserved
+// This LiveLink code is based on the original Epic FreeD plugin, this was necessary because Epic does not supply documentation on how to use LiveLink
+// I have added comments to make the code easier to understand.
 #pragma once
 
 #include "CoreTypes.h"
 
-//
-// Bliss protocol is changing, this is the current one for 0.9.2
-//
-// All floats
+// This structure stores the offsets to each data item in the messages RETracker software sends for the bliss tracker
+// The actual offset values are at the beginning of LiveLinkBlissSource.cpp
+// Some changes are being made as new features are added
+// The current protocol was setup so the old bliss software will still work with this plugin
+// In the future this may change.  "Message_Type" is used to identify which version of the protocol is
+// being used so future plugins can automatically adapt.
 
 #if 0
 struct BlissPacketDefinition

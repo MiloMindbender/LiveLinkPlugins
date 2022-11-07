@@ -1,4 +1,7 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Portions Copyright Epic Games, Inc. All Rights Reserved.
+// Portions Copyright Greg Corson, All Rights Reserved
+// This LiveLink code is based on the original Epic FreeD plugin, this was necessary because Epic does not supply documentation on how to use LiveLink
+// I have added comments to make the code easier to understand.
 
 #include "LiveLinkBlissSourceFactory.h"
 #include "LiveLinkBlissSource.h"

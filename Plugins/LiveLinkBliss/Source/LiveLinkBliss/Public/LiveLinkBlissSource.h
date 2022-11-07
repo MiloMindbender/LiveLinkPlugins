@@ -1,5 +1,7 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
+// Portions Copyright Epic Games, Inc. All Rights Reserved.
+// Portions Copyright Greg Corson, All Rights Reserved
+// This LiveLink code is based on the original Epic FreeD plugin, this was necessary because Epic does not supply documentation on how to use LiveLink
+// I have added comments to make the code easier to understand.
 #pragma once
 
 #include "ILiveLinkSource.h"
@@ -18,6 +20,8 @@
 #include "Interfaces/IPv4/IPv4Endpoint.h"
 
 #include "LiveLinkBlissPacketInfo.h"
+
+// This is all boiler plate code that all livelink plugins seem to require.
 
 struct ULiveLinkBlissSettings;
 

@@ -18,6 +18,8 @@
 #define LOCTEXT_NAMESPACE "LiveLinkBlissSourceFactory"
 
 // These consts must be defined here in the CPP for non-MS compiler issues
+// The numbers are the offset in the packet where the value appears.
+// At the moment bliss sends everything as 4 byte floats.
 
 #if 0
 const uint8 BlissPacketDefinition::PacketSize = 60;
@@ -166,7 +168,13 @@ bool FLiveLinkBlissSource::RequestSourceShutdown()
 
 //-------------------------------------------------------------------------------------------------------------------------------
 // OnSettingsChanged --- Handles updating the default settings if someone changes the source type in the LiveLink window.
-// Right now the only source is "Bliss" though in the future we may add more.
+// There current source types are
+// Bliss				--- Normal bliss tracking with timestamps from the sensor
+// BlissNoTimeStamps	--- Bliss tracking but time stamps from the sensor are not used, data is evaluated based on the time it arrives
+// BlissPrintStatistics --- Prints some debug statistics to the output log 
+//
+// The current Bliss does not send lens encoder data, but I have preserved all the variables and enables used to handle it to make it
+// easy to add in the future.  All the current default configurations have this disabled by default.
 //
 void FLiveLinkBlissSource::OnSettingsChanged(ULiveLinkSourceSettings* Settings, const FPropertyChangedEvent& PropertyChangedEvent)
 {
@@ -311,6 +319,9 @@ void FLiveLinkBlissSource::Stop()
 //-------------------------------------------------------------------------------------------------------------------------------
 // FLiveLinkBlissSource::Run() --- This is the main worker that receives the packets from bliss, decodes them and
 // sends them on to livelink
+// 
+// There is some code in here from the original FreeD plugin I've got commented out so you can see how they decoded the
+// lens encoder data and sent it to livelink.
 //
 uint32 FLiveLinkBlissSource::Run()
 {
@@ -319,7 +330,6 @@ uint32 FLiveLinkBlissSource::Run()
 	static double lastUnrealTime = 0.0;
 	static double lastRawSensorTime = 0.0;
 	static bool   lastFocalDistance = false;
-	float debugger[60];
 
 	// Free-D max data rate is 100Hz
 	const FTimespan SocketTimeout(FTimespan::FromMilliseconds(10));
@@ -327,7 +337,7 @@ uint32 FLiveLinkBlissSource::Run()
 	// Only process packets if we are not stopping (shutting down)
 	while (!Stopping)
 	{
-		// If the socket is valid, wait for data to happen
+		// If the socket is valid, wait for data to arrive
 		if (Socket && Socket->Wait(ESocketWaitConditions::WaitForRead, SocketTimeout))
 		{
 			// While there is data to process, repeat this
@@ -341,8 +351,11 @@ uint32 FLiveLinkBlissSource::Run()
 					// If we got some data, process it.
 					if (ReceivedDataSize > 0)
 					{
+#if 0 //for easy access to the packet in the debugger as an array of floats
+						float debugger[60];
 						memset(debugger, 0, 240);
 						memcpy(debugger, &ReceiveBuffer[0], ReceivedDataSize);
+#endif
 						// !!!GAC not sure what the source settings do yet!
 						if (SavedSourceSettings == nullptr)
 						{
@@ -351,6 +364,7 @@ uint32 FLiveLinkBlissSource::Run()
 						else // This could be a if-else chain to handle different kinds of packets, right now there is just one
 						{
 							// Warn if we didn't get the right size packet
+							// this should only happen if someone else is sending messages to the same port as bliss
 
 							if (ReceivedDataSize != BlissPacketDefinition::PacketSize)
 							{
@@ -359,10 +373,13 @@ uint32 FLiveLinkBlissSource::Run()
 							}
 
 							// There is currently only one type of message to receive, this parses it out.
-							// There is no byte order conversion being done right now.
+							// There is no byte order conversion being done right now as Bliss only runs on a PC
+							// If bliss supports Mac in the future, byte order conversion would be added to all the reads from ReceiveBuffer
 
 							// Decode xyz, roll pitch yaw and generate a transform from it
 							// Bliss sends meters, so we multiply by 100 to get CM for unreal, also do some axis swapping
+							// In the future bliss may start sending quaternions instead of euler angles, those would still need
+							// some conversion to be compatible with unreal
 							FVector tLocation = FVector(
 								(*(float*)&ReceiveBuffer[BlissPacketDefinition::Z]) * 100.0,
 								(*(float*)&ReceiveBuffer[BlissPacketDefinition::X]) * 100.0,
@@ -376,7 +393,11 @@ uint32 FLiveLinkBlissSource::Run()
 							FVector    tScale = FVector(1.0, 1.0, 1.0);
 							FTransform tTransform = FTransform(tQuat, tLocation, tScale);
 
-							// Convert the sensor time to seconds as a double
+							// Time handling.  Bliss sends us time in floats which might create problems in the future
+							// Probably would be best to send these as long ints.
+							// This reads the bliss host time in float seconds and the sensor time in microseconds
+							// then converts them both to double seconds.  It also keeps some statistics on the timing
+							// between packets that we use for debugging.
 
 							double hostTime = (*(float*)&ReceiveBuffer[BlissPacketDefinition::Host_Time]);
 							double rawSensorTime = (*(float*)&ReceiveBuffer[BlissPacketDefinition::Sensor_Time]);
@@ -387,6 +408,9 @@ uint32 FLiveLinkBlissSource::Run()
 							double hostDelta = hostTime - lastHostTime;
 							double unrealDelta = unrealTime - lastUnrealTime;
 							double arrivalJitter = sensorDelta - unrealDelta;
+							
+							// Complain if we see two packets in a row with the same time stamp.  This should not happen but
+							// sometimes does.  I believe livelink ignores packets with the same time stamp.
 
 							if(lastRawSensorTime == rawSensorTime || lastSensorTime == sensorTime)
 								UE_LOG(LogLiveLinkBliss, Warning, TEXT("LiveLinkBlissSource: Two times were the same! Sensor Time %f, lastSensorTime %f sensordelta %f, rawSensorDelta %f"), sensorTime, lastSensorTime, sensorDelta, rawSensorTime - lastRawSensorTime);
@@ -406,23 +430,34 @@ uint32 FLiveLinkBlissSource::Run()
 							float UserDefinedData = ProcessEncoderData(SavedSourceSettings->UserDefinedEncoderData, UserDefinedDataInt);
 #endif
 
-							// Handle release 2 format and release 3 test format
+							// Get the message type and camera id out of the packet
+							// Release 2 packets don't contain these fields
 
 							float messageType = *(float*)&ReceiveBuffer[BlissPacketDefinition::Message_Type];
 							float CameraId    = *(float*)&ReceiveBuffer[BlissPacketDefinition::Camera_ID];
 
+							// Release 2 packets don't contain a camera id or a message type. In release 2 packets
+							// the value where messageType goes will be constantly changing and is unlikely to be a whole number
+							// So if we don't see a valid message type we assume we have received a type 2 packet and provide a 
+							// camera id value of 1.
+							//
+							// Release 2 packets will soon be discontinued
+							
 							if (messageType != 1.0f)
 							{
 								CameraId = 1;
 							}
+
+							// These values would come from a lens encoder, bliss doesn't support one yet so we set them to zero
 					
-//							int CameraId = 1;
-//							int CameraId = *(float*)&ReceiveBuffer[BlissPacketDefinition::Camera_ID];
 							float FocalLength = 0;
 							float FocusDistance = 0;
 							float UserDefinedData = 0;
 
 							// Make data structure to push into livelink
+							// The subject name is a string with the word Camera followed by the camera number
+							// This plugin can support multiple subjects from multiple bliss trackers  CameraSubjectName
+							// identifyes which is which.
 
 							FLiveLinkFrameDataStruct FrameData(FLiveLinkCameraFrameData::StaticStruct());
 							FLiveLinkCameraFrameData* CameraFrameData = FrameData.Cast<FLiveLinkCameraFrameData>();
@@ -491,11 +526,15 @@ uint32 FLiveLinkBlissSource::Run()
 
 //-------------------------------------------------------------------------------------------------------------------------------
 void FLiveLinkBlissSource::Send(FLiveLinkFrameDataStruct* FrameDataToSend, FName SubjectName)
+// This sends the static and dynamic data about a tracking subject into livelink
 {
 	if (Stopping || (Client == nullptr))
 	{
 		return;
 	}
+
+	// This checks to see if the subject name has been encountered before.  If it has not, we send all the static data about
+	// this subject into livelink.
 
 	if (!EncounteredSubjects.Contains(SubjectName))
 	{
@@ -509,10 +548,14 @@ void FLiveLinkBlissSource::Send(FLiveLinkFrameDataStruct* FrameDataToSend, FName
 		EncounteredSubjects.Add(SubjectName);
 	}
 
+	// This sends the dynamic data to livelink
+
 	Client->PushSubjectFrameData_AnyThread({ SourceGuid, SubjectName }, MoveTemp(*FrameDataToSend));
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------
+// Below here is code used to process lens encoder data, the plugin currently does not use this, it's kept for future use.
+
 float FLiveLinkBlissSource::ProcessEncoderData(FBlissEncoderData& EncoderData, int32 RawEncoderValueInt)
 {
 	float FinalEncoderValue = 0.0f;
