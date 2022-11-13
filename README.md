@@ -21,6 +21,7 @@ The latest release of the plugin and related tools will always be available on [
 ## Tutorials
 
 This tutorial shows how to setup a [Virtual Production project scratch using Bliss](https://youtu.be/ebuLqk85VTQ)
+
 A new tutorial showing how to do a full nodal offset calibration is coming soon.  To be notified when it comes out, please [SUBSCRIBE to my youtube channel.](https://www.youtube.com/user/GregCorson)
 
 ## Contact Information
