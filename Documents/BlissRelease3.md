@@ -1,4 +1,4 @@
-For install instructions, go [here](INSTALL LiveLinkPlugins.md)
+For install instructions, go [here](Documents/INSTALLATION.md)
 
 Release Notes
 
