@@ -6,7 +6,7 @@ A video tutorial on how to do nodal point calibration will be available soon.  P
 
 ## Download the Requirements 
 
-Download the latest LiveLinkBliss_Release.zip from the[releases page here](https://github.com/MiloMindbender/LiveLinkPlugins/releases)
+Download the latest LiveLinkBliss_Release.zip from the [releases page here](https://github.com/MiloMindbender/LiveLinkPlugins/releases)
 
 You should already have Unreal Engine 5, RETracker Bliss Hardware and Retracker-Bliss-0.8.7.3 or higher software
 
