@@ -11,7 +11,7 @@
 	"MarketplaceURL": "",
 	"SupportURL": "https://www.youtube.com/user/GregCorson",
 	"CanContainContent": true,
-	"IsBetaVersion": true,
+	"IsBetaVersion": false,
 	"IsExperimentalVersion": false,
 	"Installed": false,
 	"EnabledByDefault": false,
