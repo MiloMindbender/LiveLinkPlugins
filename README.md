@@ -10,7 +10,7 @@ I am not an employee of Bliss/Rassi Engineering LTD.  I developed this Plugin to
 
 # Quick Install (DO NOT use the green CODE button)
 
-Please follow the [install instructions here](INSTALLATION.md) Troubleshooting help is [here]{TROUBLESHOOTING.md)
+Please follow the [install instructions here](INSTALLATION.md) Troubleshooting help is [here](TROUBLESHOOTING.md)
 
 The green CODE button is NOT WHAT YOU WANT.  It will give you a work in progress version for experimenters and colaborators that requires compiling and may not be stable.  If you want to hack on my code, [instructions are here](SOURCE_CODE.md)
 
