@@ -1,4 +1,4 @@
-For install instructions, go [here](Documents/INSTALLATION.md)
+For install instructions, go [here](INSTALLATION.md)
 
 Release Notes
 
