@@ -20,7 +20,7 @@ The special Aruco, AprilTag and other blueprints are only available for UE5.  If
 
 # What you need to rebuild the plugin from scratch
 
-To build the plugin you any version of Microsoft Visual Studio, 2019 or higher.  The free "Community Edition" should work fine. Check the Visual Studio installer and make sure you have the "workloads" for "desktop develpment with C++" and "game development with C++" or the build may fail.
+To build the plugin you need any version of Microsoft Visual Studio, 2019 or higher.  The free "Community Edition" should work fine. Check the Visual Studio installer and make sure you have the "workloads" for "desktop develpment with C++" and "game development with C++" or the build may fail.
 
 You can build the plugin from either the repository (green CODE button) or from the zip on the [releases page](https://github.com/MiloMindbender/LiveLinkPlugins/releases)
 
