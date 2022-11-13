@@ -12,7 +12,7 @@ You should already have Unreal Engine 5, RETracker Bliss Hardware and Retracker-
 
 ## Print the Calibration images
 
-The zip includes some [calibration images to print](../TagsToPrint) as PDF files you can print out if you don't have them already. Print these as large as possible and measure their size as accurately as you can.  Measure only the black part of the tags.  The AprilTag PDF contains tags 0-19, you only need to print out tag #1.
+The zip has a [TagsToPrint print](../TagsToPrint) folder with PDF files of April Tags, Aruco Tag and checkerboards you can print out if you don't have them already. Print these as large as possible and measure their size as accurately as you can.  Measure only the black part of the tags.  The AprilTag PDF contains tags 0-19, you only need to print out tag #1.
 
 # Install and Setup Everything
 
