@@ -10,9 +10,9 @@ I am not an employee of Bliss/Rassi Engineering LTD.  I developed this Plugin to
 
 # Quick Install (DO NOT use the green CODE button)
 
-Please follow the [install instructions here](INSTALLATION.md) Troubleshooting help is [here]{TROUBLESHOOTING.md}
+Please follow the [install instructions here](INSTALLATION.md) Troubleshooting help is [here]{TROUBLESHOOTING.md)
 
-The green CODE button is NOT WHAT YOU WANT.  It will give you a work in progress version for experimenters and colaborators that requires compiling and may not be stable.  If you want to hack on my code, [instructions are here](SOURCE_CODE.md}
+The green CODE button is NOT WHAT YOU WANT.  It will give you a work in progress version for experimenters and colaborators that requires compiling and may not be stable.  If you want to hack on my code, [instructions are here](SOURCE_CODE.md)
 
 The latest release of the plugin and related tools will always be available on [releases page here](https://github.com/MiloMindbender/LiveLinkPlugins/releases)
 
@@ -20,7 +20,7 @@ The latest release of the plugin and related tools will always be available on [
 
 ## Tutorials
 
-This tutorial shows how to setup a Virtual Production project scratch using Bliss https://youtu.be/ebuLqk85VTQ
+This tutorial shows how to setup a [Virtual Production project scratch using Bliss](https://youtu.be/ebuLqk85VTQ)
 A new tutorial showing how to do a full nodal offset calibration is coming soon.  To be notified when it comes out, please [SUBSCRIBE to my youtube channel.](https://www.youtube.com/user/GregCorson)
 
 ## Contact Information
