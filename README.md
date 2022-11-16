@@ -32,8 +32,6 @@ Report problems or ask questions about this LiveLink plugin [here](https://githu
 
 To buy a Bliss tracker or contact it's developer [Rassi Engineering LTD](https://www.retracker.co/)
 
-You can also talk to Bliss users on [Discord](https://discord.gg/SsftMDMZfJ)
-
 ## Important note
 
 If you have been using Bliss for awhile, your projects may have it set to run through FreeD.  You will want to change this to use LiveLink.  The sample project is setup this way as an example.  See Bliss documentations on the settings file for how to setup RETracker Bliss.
