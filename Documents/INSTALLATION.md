@@ -8,11 +8,11 @@ A video tutorial on how to do nodal point calibration will be available soon.  P
 
 Download the latest LiveLinkBliss_Release.zip from the [releases page here](https://github.com/MiloMindbender/LiveLinkPlugins/releases)
 
-You should already have Unreal Engine 5, RETracker Bliss Hardware and Retracker-Bliss-0.8.7.3 or higher software
+You should already have Unreal Engine 5, RETracker Bliss Hardware and Retracker-Bliss-0.8.8.0 or higher software
 
 ## Print the Calibration images
 
-The zip includes some calibration images as PDF files you can print out if you don't have them already. Print these as large as possible and measure their size as accurately as you can.  Measure only the black part of the tags.  The AprilTag PDF contains tags 0-19, you only need to print out tag #1.
+The zip has a [TagsToPrint](../TagsToPrint) folder with PDF files of April Tags, Aruco Tag and checkerboards you can print out if you don't have them already. Print these as large as possible and measure their size as accurately as you can.  Measure only the black part of the tags.  The AprilTag PDF contains tags 0-19, you only need to print out tag #1.
 
 # Install and Setup Everything
 
@@ -24,7 +24,7 @@ Unzip LiveLinkBliss_Release_3.zip to a convenient location.  That's it!
 
 You need to setup your video input, the sample is setup for my AJA Kona HDMI, your setup will be different.  Make sure your source is connected to the media_plate in the sample and you will be ready to do a lens calibration with the sample.
 
-Also your Bliss needs to be setup to send LiveLink tracking to your machine running unreal.  The default setup is to use port 50000, see your Bliss documentation on how to set this up.  There are some new things in Bliss-0.8.7.3
+Also your Bliss needs to be setup to send LiveLink tracking to your machine running unreal.  The default setup is to use port 50000, see your Bliss documentation on how to set this up.  There are some new things in Bliss-0.8.8.0
 
 ## Add Plugins into your own projects
 

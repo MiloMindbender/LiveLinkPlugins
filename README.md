@@ -10,9 +10,9 @@ I am not an employee of Bliss/Rassi Engineering LTD.  I developed this Plugin to
 
 # Quick Install (DO NOT use the green CODE button)
 
-Please follow the [install instructions here](INSTALLATION.md) Troubleshooting help is [here](TROUBLESHOOTING.md)
+Please follow the [install instructions here](Documents/INSTALLATION.md) Troubleshooting help is [here](Documents/TROUBLESHOOTING.md)
 
-The green CODE button is NOT WHAT YOU WANT.  It will give you a work in progress version for experimenters and colaborators that requires compiling and may not be stable.  If you want to hack on my code, [instructions are here](SOURCE_CODE.md)
+The green CODE button is NOT WHAT YOU WANT.  It will give you a work in progress version for experimenters and colaborators that requires compiling and may not be stable.  If you want to hack on my code, [instructions are here](Documents/SOURCE_CODE.md)
 
 The latest release of the plugin and related tools will always be available on [releases page here](https://github.com/MiloMindbender/LiveLinkPlugins/releases)
 
@@ -31,8 +31,6 @@ For Virtual Production Tutorials, and updates [subscribe to my youtube channel.]
 Report problems or ask questions about this LiveLink plugin [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues)
 
 To buy a Bliss tracker or contact it's developer [Rassi Engineering LTD](https://www.retracker.co/)
-
-You can also talk to Bliss users on [Discord](https://discord.gg/SsftMDMZfJ)
 
 ## Important note
 

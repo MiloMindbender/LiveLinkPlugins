@@ -1,10 +1,10 @@
-For install instructions, go [here](INSTALL LiveLinkPlugins.md)
+For install instructions, go [here](INSTALLATION.md)
 
 Release Notes
 
 REQUIRES RETracker Bliss Hardware
 
-REQUIRES Retracker-Bliss-0.8.7.3 or higher software to support all the new features!
+REQUIRES Retracker-Bliss-0.8.8.0 or higher software to support all the new features!
 REQUIRES Unreal Engine 5 or higher
 
 What's new
