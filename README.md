@@ -1,7 +1,5 @@
 # LiveLink Plugins for Bliss tracker and Unreal Engine
 
-## These docs are being updated for Release 3 which should be available in a few days.
-
 This plugin brings Bliss camera tracking data into Unreal's LiveLink system.  To use it you need a Bliss tracker from [Rassi Engineering LTD](https://www.retracker.co/)
 
 These documents are easier to read on the [github site](https://github.com/MiloMindbender/LiveLinkPlugins) so all the clickable links work.
