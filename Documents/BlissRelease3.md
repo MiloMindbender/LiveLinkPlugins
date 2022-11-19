@@ -26,8 +26,8 @@ Works on UE 5.1 also
 
 These are ready to use and should not require any compiling, just open them with the right release of unreal.
 
-LiveLinkBliss_R3_for_UE55.0.zip  for Unreal Engine 5.0
-LiveLinkBliss_R3_for_UE55.1.zip  for Unreal Engine 5.1
+LiveLinkBliss_R3_for_UE5.0.zip  for Unreal Engine 5.0
+LiveLinkBliss_R3_for_UE5.1.zip  for Unreal Engine 5.1
 
 ### Repository Snapshots
 
