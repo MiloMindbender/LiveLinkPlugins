@@ -20,15 +20,24 @@ The special Aruco, AprilTag and other blueprints are only available for UE5.  If
 
 # What you need to rebuild the plugin from scratch
 
-To build the plugin you need any version of Microsoft Visual Studio, 2019 or higher.  The free "Community Edition" should work fine. Check the Visual Studio installer and make sure you have the "workloads" for "desktop develpment with C++" and "game development with C++" or the build may fail.
+As of Unreal 5.1, you may need Microsoft Visual Studio 2022 or higher.  Any version including the free "community edition" should work.  Check the Visual Studio installer and make sure you have the "workloads" for "desktop develpment with C++" and "game development with C++" installed.  The build also requires .net 6.0.
 
 You can build the plugin from either the repository (green CODE button) or from the zip on the [releases page](https://github.com/MiloMindbender/LiveLinkPlugins/releases)
 
 # Don't use the included FreeD plugin.
 
-The repository contains the LiveLink FreeD plugin source code from Epic.  This is just here for reference and should not be used as it may be out of date.
+The repository contains the LiveLink FreeD plugin source code from Epic.  This is just here as a LiveLink coding example to compare to mine.  Don't use this plugin in a project.  You can just remove LiveLinkFreeD from the plugins folder if you want.
 
-# Automatically building the plugin
+# Automatically building the sample project from the repository
+
+1. Get a zip or checkout of the repository on your computer
+2. Start the version of Unreal you are using
+3. Browse to the Unreal project in the repository and open it with unreal
+4. If you are NOT using Unreal 5.0.3 you will see a message about converting a 5.0 project to 5.1, go ahead and convert it.
+5. You may see a message about a plugin not being built for your version of Unreal, click yes to go ahead and compile it.
+6. There will be a 1-3 minute pause where nothing seems to be happening, then the project should open and be ready to use.
+
+# Automatically building the plugin inside your own project
 
 1. Have your own project setup in whatever version of Unreal Engine you are using
 2. Create a Plugins folder in your project if it doesn't exist already

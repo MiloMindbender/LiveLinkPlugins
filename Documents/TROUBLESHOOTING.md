@@ -1,17 +1,19 @@
 # Trougbleshooting LiveLinkBliss
 
+## I get a "plugin was not compiled for your version of unreal" message
+
+If you see this message you may have opened the 5.0 project with unreal 5.1, make sure you are opening the project with the version of unreal it's made for.
+
+If you have multiple versions of Unreal installed, the first time you might have to run the right version of Unreal first, then browse to the project to open it.  After this it should show up in the Epic Games Launcher.
+
+If you keep getting the plugin build message please report it[here](https://github.com/MiloMindbender/LiveLinkPlugins/issues) be sure to give the version of unreal you are running and if you built Unreal from source.
+
 ## I see TWO cameras in LiveLink!
 
 With the standard setup you may see Camera 1 and Camera 101 appear in the LiveLink window.
 
 Camera 1 is your regular Bliss camera tracking like before
 Camera 101 is Bliss tracking an AprilTag in the scene for Nodal Point Offset calibration.  If you are just using Bliss for camera tracking you can ignore this, it is ok for it to be yellow.
-
-## I get a "plugin was not compiled for your version of unreal" message
-
-If you are running 5.0.3 you should NOT get this error, so PLEASE REPORT it [here](https://github.com/MiloMindbender/LiveLinkPlugins/issues) it usually means you are running a version of Unreal the plugin was not made built for.  This should only happen if you are running an Unreal before UE 5.
-
-Please be sure to report the version of unreal you are running and if you built Unreal from source code.
 
 ## When I add the LiveLinkBlis Source I don't see a Camera Subject or the light is yellow instead of green
 
