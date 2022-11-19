@@ -1,4 +1,4 @@
-# Trougbleshooting LiveLinkBliss
+# Troubleshooting LiveLinkBliss
 
 ## I get a "plugin was not compiled for your version of unreal" message
 
