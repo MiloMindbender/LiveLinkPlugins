@@ -8,7 +8,8 @@ public class LiveLinkPluginsEditorTarget : TargetRules
 	public LiveLinkPluginsEditorTarget( TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
-		DefaultBuildSettings = BuildSettingsVersion.V2;
+		DefaultBuildSettings = BuildSettingsVersion.Latest;
 		ExtraModuleNames.AddRange( new string[] { "LiveLinkPlugins" } );
-	}
+        IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
+    }
 }
