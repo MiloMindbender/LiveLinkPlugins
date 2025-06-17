@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <IsGameInputSupportedPlatform Condition="!$(Platform.Contains('Gaming.Xbox.'))">true</IsGameInputSupportedPlatform>
+    <GameInputNativeBuildDirectory>$(MSBuildThisFileDirectory)..\..\..\native\</GameInputNativeBuildDirectory>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup Condition="'$(IsGameInputSupportedPlatform)'=='true'">
+    <ClCompile>
+      <PreprocessorDefinitions>USING_GAMEINPUT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(GameInputNativeBuildDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(PlatformTarget)'=='x64' AND '$(IsGameInputSupportedPlatform)'=='true'">
+    <Link>
+      <AdditionalLibraryDirectories>$(GameInputNativeBuildDirectory)lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);GameInput.lib</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+
+</Project>
